@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comments</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <style>
         * {
             margin: 0;
@@ -17,46 +18,52 @@
             --white: #ffffff;
             --gray: #666666;
             --border: #e0e0e0;
-            --bg: #f5f5f5;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif;
             background-color: var(--white);
             color: var(--black);
             line-height: 1.6;
             min-height: 100vh;
+            font-size: 1.05rem;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 4rem 2rem;
         }
 
         .header {
-            border-bottom: 2px solid var(--black);
-            padding-bottom: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 4rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .header-left {
+            flex: 1;
         }
 
         .top-right {
             display: flex;
-            gap: 12px;
+            gap: 1rem;
+            align-items: center;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 0.75rem 1.5rem;
             background: transparent;
             color: var(--black);
             border: 1px solid var(--black);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.95rem;
             font-weight: 500;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         button:hover:not(:disabled) {
@@ -71,18 +78,38 @@
 
         #authStatus {
             font-weight: 700;
-            font-size: 24px;
+            font-size: 2.5rem;
             color: var(--black);
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            font-weight: 400;
+        }
+
+        .comments-section {
+            margin-top: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--black);
         }
 
         .comment {
-            margin-bottom: 16px;
-            padding: 20px;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
             border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 20px;
+            gap: 2rem;
             transition: border-color 0.2s;
         }
 
@@ -90,10 +117,14 @@
             border-color: var(--black);
         }
 
+        .comment-content {
+            flex: 1;
+        }
+
         .buttonBox {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
             flex-shrink: 0;
         }
 
@@ -101,35 +132,33 @@
             background: transparent;
             color: var(--black);
             border: 1px solid var(--border);
-            padding: 6px 12px;
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         .actionButton:hover:not(:disabled) {
             background: var(--black);
             color: var(--white);
+            border-color: var(--black);
         }
 
         .deleteButton {
             border-color: var(--black);
         }
 
-        .deleteButton:hover:not(:disabled) {
-            background: var(--black);
-            color: var(--white);
-        }
-
         #commentInput {
-            padding: 12px;
+            padding: 1rem 1.25rem;
             border: 1px solid var(--border);
             width: 100%;
-            font-size: 14px;
+            font-size: 1.05rem;
             transition: border-color 0.2s;
             background: var(--white);
             font-family: inherit;
+            line-height: 1.6;
         }
 
         #commentInput:focus {
@@ -143,27 +172,24 @@
 
         .author {
             font-weight: 700;
-            margin-right: 8px;
+            margin-right: 0.5rem;
             color: var(--black);
-            font-size: 14px;
+            font-size: 1.1rem;
         }
 
         .content {
             word-break: break-word;
-            line-height: 1.6;
+            line-height: 1.8;
             color: var(--black);
-            font-size: 14px;
+            font-size: 1.05rem;
         }
 
         #commentsContainer {
-            min-height: 200px;
+            min-height: 300px;
         }
 
         .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 0.75rem;
         }
 
         .comment-body {
@@ -171,35 +197,53 @@
         }
 
         .comments-wrapper {
-            margin-bottom: 40px;
+            margin-bottom: 4rem;
         }
 
         .sticky-input {
             border-top: 2px solid var(--black);
-            padding-top: 20px;
+            padding-top: 2rem;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 4rem 2rem;
             color: var(--gray);
             border: 1px solid var(--border);
         }
 
         .empty-state-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
         }
 
         .empty-state-text {
-            font-size: 14px;
+            font-size: 1.05rem;
         }
 
         @media (max-width: 768px) {
+            body {
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 3rem 1.5rem;
+            }
+
             .header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 16px;
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+
+            #authStatus {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
             }
 
             .top-right {
@@ -212,22 +256,35 @@
 
             .comment {
                 flex-direction: column;
-                gap: 12px;
+                gap: 1rem;
+                padding: 1.25rem;
             }
 
             .buttonBox {
                 width: 100%;
                 flex-wrap: wrap;
             }
+
+            .author {
+                font-size: 1rem;
+            }
+
+            .content {
+                font-size: 1rem;
+            }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 20px 16px;
+                padding: 2rem 1rem;
             }
 
             #authStatus {
-                font-size: 20px;
+                font-size: 1.75rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
             }
 
             .top-right {
@@ -248,15 +305,22 @@
 <body>
     <div class="container">
         <div class="header">
-            <div id="authStatus"></div>
+            <div class="header-left">
+                <div id="authStatus"></div>
+            </div>
             <div class="top-right">
                 <button id="authButton">Login</button>
                 <button id="logoutButton" style="display: none;">Logout</button>
             </div>
         </div>
-        <div class="comments-wrapper">
-            <div id="commentsContainer"></div>
+
+        <div class="comments-section">
+            <h2 class="section-title">Comments</h2>
+            <div class="comments-wrapper">
+                <div id="commentsContainer"></div>
+            </div>
         </div>
+
         <div class="sticky-input">
             <form id="commentForm" style="display: none;">
                 <input type="text" id="commentInput" placeholder="Write a comment (max 35 characters)" maxlength="35">
@@ -341,6 +405,9 @@
                         const commentBox = document.createElement('div');
                         commentBox.className = 'comment';
 
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'comment-content';
+
                         const header = document.createElement('div');
                         header.className = 'comment-header';
                         const authorSpan = document.createElement('span');
@@ -354,6 +421,9 @@
                         contentSpan.className = 'content';
                         contentSpan.textContent = comment.content;
                         body.appendChild(contentSpan);
+
+                        contentDiv.appendChild(header);
+                        contentDiv.appendChild(body);
 
                         const buttonBox = document.createElement('div');
                         buttonBox.className = 'buttonBox';
@@ -438,11 +508,7 @@
                             buttonBox.appendChild(deleteBtn);
                         }
 
-                        const leftDiv = document.createElement('div');
-                        leftDiv.appendChild(header);
-                        leftDiv.appendChild(body);
-
-                        commentBox.appendChild(leftDiv);
+                        commentBox.appendChild(contentDiv);
                         commentBox.appendChild(buttonBox);
                         commentsContainer.appendChild(commentBox);
                     });
