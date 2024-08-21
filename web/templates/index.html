@@ -365,7 +365,7 @@
                         if (canInteract) {
                             const likeBtn = document.createElement('button');
                             likeBtn.className = 'actionButton';
-                            likeBtn.textContent = `👍 ${comment.likes}`;
+                            likeBtn.textContent = `+ ${comment.likes}`;
                             likeBtn.addEventListener('click', async () => {
                                 likeBtn.disabled = true;
                                 if (comment.is_liked) {
@@ -379,14 +379,14 @@
                             buttonBox.appendChild(likeBtn);
                         } else {
                             const span = document.createElement('span');
-                            span.textContent = `👍 ${comment.likes}`;
+                            span.textContent = `+ ${comment.likes}`;
                             buttonBox.appendChild(span);
                         }
 
                         if (canInteract) {
                             const dislikeBtn = document.createElement('button');
                             dislikeBtn.className = 'actionButton';
-                            dislikeBtn.textContent = `👎 ${comment.dislikes}`;
+                            dislikeBtn.textContent = `- ${comment.dislikes}`;
                             dislikeBtn.addEventListener('click', async () => {
                                 dislikeBtn.disabled = true;
                                 if (comment.is_disliked) {
@@ -400,14 +400,14 @@
                             buttonBox.appendChild(dislikeBtn);
                         } else {
                             const span = document.createElement('span');
-                            span.textContent = `👎 ${comment.dislikes}`;
+                            span.textContent = `- ${comment.dislikes}`;
                             buttonBox.appendChild(span);
                         }
 
                         if (isPageOwner) {
                             const ownerBtn = document.createElement('button');
                             ownerBtn.className = 'actionButton';
-                            ownerBtn.textContent = comment.is_owner_liked ? '❤️' : '🤍';
+                            ownerBtn.textContent = comment.is_owner_liked ? '★' : '☆';
                             ownerBtn.addEventListener('click', async () => {
                                 ownerBtn.disabled = true;
                                 if (comment.is_owner_liked) {
@@ -420,7 +420,7 @@
                             buttonBox.appendChild(ownerBtn);
                         } else if (comment.is_owner_liked) {
                             const span = document.createElement('span');
-                            span.textContent = '❤️';
+                            span.textContent = '★';
                             buttonBox.appendChild(span);
                         }
 
