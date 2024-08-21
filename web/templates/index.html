@@ -7,208 +7,317 @@
     <title>Comments</title>
     <style>
         :root {
-            --primary-color: #000000;
-            --secondary-color: #ffffff;
-            --accent-color: #f0f0f0;
-            --text-color: #333333;
-            --border-color: #e0e0e0;
-            --shadow-color: rgba(0, 0, 0, 0.1);
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(102, 126, 234, 0.08);
+            --shadow-md: 0 4px 16px rgba(102, 126, 234, 0.12);
+            --shadow-lg: 0 8px 32px rgba(102, 126, 234, 0.16);
             --transition-speed: 0.3s;
+            --border-radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             color: var(--text-color);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 40px;
-            background-color: var(--secondary-color);
-            border-radius: 16px;
-            box-shadow: 0 15px 35px var(--shadow-color);
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
             position: relative;
-            transition: all var(--transition-speed) ease;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
         }
 
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px var(--shadow-color);
+        .header {
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            padding: 32px 40px;
+            border-radius: 24px 24px 0 0;
+            position: relative;
         }
 
         .top-right {
             position: absolute;
-            top: 30px;
-            right: 30px;
+            top: 32px;
+            right: 40px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         button {
-            padding: 12px 24px;
-            background-color: var(--primary-color);
-            color: var(--secondary-color);
-            border: none;
-            border-radius: 30px;
+            padding: 12px 28px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            transition: all var(--transition-speed) ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            text-transform: none;
+            letter-spacing: 0.3px;
         }
 
-        button:hover {
-            background-color: #333333;
+        button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--shadow-color);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         #authStatus {
-            margin-bottom: 30px;
-            font-weight: 600;
-            font-size: 18px;
-            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 28px;
+            color: white;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 0;
+        }
+
+        .content-wrapper {
+            padding: 40px;
         }
 
         .comment {
-            margin-bottom: 25px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
             position: relative;
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            transition: all var(--transition-speed) ease;
-            background-color: var(--secondary-color);
+            gap: 20px;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
         }
 
         .comment:hover {
-            box-shadow: 0 10px 20px var(--shadow-color);
-            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
         }
 
         .buttonBox {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .actionButton {
-            background-color: transparent;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 16px;
             cursor: pointer;
-            font-size: 12px;
-            transition: all var(--transition-speed) ease;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
         }
 
-        .actionButton:hover {
-            background-color: var(--accent-color);
-            transform: translateY(-2px);
+        .actionButton:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--shadow-md);
         }
 
         .deleteButton {
-            background-color: #ff3333;
-            color: var(--secondary-color);
+            background: linear-gradient(135deg, #f56565 0%, #c53030 100%);
         }
 
-        .deleteButton:hover {
-            background-color: #cc0000;
+        .deleteButton:hover:not(:disabled) {
+            background: linear-gradient(135deg, #e53e3e 0%, #9b2c2c 100%);
         }
 
         #commentInput {
-            margin-top: 30px;
-            padding: 15px 20px;
+            padding: 16px 24px;
             border: 2px solid var(--border-color);
-            border-radius: 30px;
-            width: calc(100% - 44px);
-            font-size: 16px;
-            transition: all var(--transition-speed) ease;
+            border-radius: 50px;
+            width: 100%;
+            font-size: 15px;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            font-family: inherit;
         }
 
         #commentInput:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        #commentInput::placeholder {
+            color: var(--text-light);
         }
 
         .author {
-            font-weight: 600;
-            margin-right: 10px;
-            color: var(--primary-color);
+            font-weight: 700;
+            margin-right: 8px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 15px;
         }
 
         .content {
             word-break: break-word;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: var(--text-color);
+            font-size: 15px;
         }
 
         #commentsContainer {
-            margin-top: 40px;
+            min-height: 200px;
         }
 
         .comment-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .comment-body {
-            margin-bottom: 15px;
+            margin-bottom: 0;
         }
 
         .comments-wrapper {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
-            margin-bottom: 20px;
-            padding-right: 10px;
+            padding-right: 8px;
         }
 
         .sticky-input {
-            position: sticky;
-            bottom: 0;
-            background-color: var(--secondary-color);
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
+            padding: 24px 40px;
+            background: linear-gradient(to top, white 0%, rgba(255,255,255,0.98) 100%);
+            border-top: 2px solid var(--border-color);
+            border-radius: 0 0 24px 24px;
         }
 
         .comments-wrapper::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
 
         .comments-wrapper::-webkit-scrollbar-track {
-            background: var(--accent-color);
-            border-radius: 4px;
+            background: transparent;
         }
 
         .comments-wrapper::-webkit-scrollbar-thumb {
-            background-color: var(--primary-color);
-            border-radius: 4px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 10px;
         }
 
         .comments-wrapper::-webkit-scrollbar-thumb:hover {
-            background-color: #555;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-color) 100%);
         }
 
-        @media (max-width: 600px) {
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
             .container {
-                padding: 30px;
-                margin: 30px 15px;
+                margin: 20px;
+                border-radius: 20px;
+            }
+
+            .header {
+                padding: 24px 20px;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .content-wrapper {
+                padding: 24px 20px;
+            }
+
+            .sticky-input {
+                padding: 20px;
+                border-radius: 0 0 20px 20px;
             }
 
             .top-right {
                 position: static;
-                margin-bottom: 30px;
+                margin-top: 20px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            button {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            #authStatus {
+                font-size: 22px;
+            }
+
+            .comment {
+                flex-direction: column;
+                padding: 20px;
+                gap: 16px;
+            }
+
+            .buttonBox {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+            }
+
+            #authStatus {
+                font-size: 20px;
+            }
+
+            .top-right {
                 flex-direction: column;
             }
 
@@ -222,33 +331,59 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
         .fade-in {
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div id="authStatus" class="fade-in"></div>
-        <div class="top-right">
-            <button id="authButton" class="fade-in">Login / Signup</button>
-            <button id="logoutButton" class="fade-in" style="display: none;">Logout</button>
+        <div class="header">
+            <div id="authStatus" class="fade-in"></div>
+            <div class="top-right">
+                <button id="authButton" class="fade-in">Login with GitHub</button>
+                <button id="logoutButton" class="fade-in" style="display: none;">Logout</button>
+            </div>
         </div>
-        <div class="comments-wrapper">
-            <div id="commentsContainer"></div>
+        <div class="content-wrapper">
+            <div class="comments-wrapper">
+                <div id="commentsContainer"></div>
+            </div>
         </div>
         <div class="sticky-input">
             <form id="commentForm" class="fade-in" style="display: none;">
-                <input type="text" id="commentInput" placeholder="Share your thoughts... (max 35 characters)"
-                    maxlength="35">
+                <input type="text" id="commentInput" placeholder="Share your thoughts... (max 35 characters)" maxlength="35">
             </form>
         </div>
     </div>
@@ -305,13 +440,31 @@
                     commentsContainer.textContent = "";
 
                     if (data.error) {
-                        commentsContainer.textContent = "Error: " + data.error;
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'empty-state fade-in';
+                        errorDiv.innerHTML = `
+                            <div class="empty-state-icon">⚠️</div>
+                            <div class="empty-state-text">Error: ${data.error}</div>
+                        `;
+                        commentsContainer.appendChild(errorDiv);
                         return;
                     }
 
-                    data.forEach(comment => {
+                    if (!data || data.length === 0) {
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.className = 'empty-state fade-in';
+                        emptyDiv.innerHTML = `
+                            <div class="empty-state-icon">💬</div>
+                            <div class="empty-state-text">No comments yet. Be the first to share!</div>
+                        `;
+                        commentsContainer.appendChild(emptyDiv);
+                        return;
+                    }
+
+                    data.forEach((comment, index) => {
                         const commentBox = document.createElement('div');
                         commentBox.classList.add('comment', 'fade-in');
+                        commentBox.style.animationDelay = `${index * 0.05}s`;
 
                         const header = document.createElement('div');
                         header.className = 'comment-header';
