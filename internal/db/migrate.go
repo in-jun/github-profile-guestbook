@@ -3,6 +3,7 @@ package db
 import (
 	"embed"
 	"fmt"
+	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -18,8 +19,14 @@ func RunMigrations(host, port, user, password, dbname string) error {
 		return fmt.Errorf("iofs source: %w", err)
 	}
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		user, password, host, port, dbname)
+	u := &url.URL{
+		Scheme:   "postgres",
+		User:     url.UserPassword(user, password),
+		Host:     fmt.Sprintf("%s:%s", host, port),
+		Path:     "/" + dbname,
+		RawQuery: "sslmode=disable",
+	}
+	dbURL := u.String()
 
 	m, err := migrate.NewWithSourceInstance("iofs", source, dbURL)
 	if err != nil {
