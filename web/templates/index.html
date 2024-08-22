@@ -26,22 +26,24 @@
             color: var(--black);
             line-height: 1.6;
             min-height: 100vh;
-            font-size: 1.05rem;
+            font-size: 14px;
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 2rem 1.5rem;
         }
 
         .header {
-            margin-bottom: 4rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .header-left {
@@ -50,17 +52,17 @@
 
         .top-right {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             align-items: center;
         }
 
         button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             background: transparent;
             color: var(--black);
             border: 1px solid var(--black);
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 13px;
             font-weight: 500;
             transition: all 0.2s;
             font-family: inherit;
@@ -78,38 +80,36 @@
 
         #authStatus {
             font-weight: 700;
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             color: var(--black);
-            line-height: 1.1;
-            margin-bottom: 0.5rem;
+            line-height: 1.2;
         }
 
-        .auth-subtitle {
-            font-size: 1.1rem;
-            color: var(--gray);
-            font-weight: 400;
+        .input-section {
+            margin-bottom: 2rem;
         }
 
         .comments-section {
-            margin-top: 4rem;
+            margin-top: 0;
         }
 
         .section-title {
-            font-size: 2rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 2rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--black);
+            margin-bottom: 1rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .comment {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
             border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 2rem;
+            gap: 1rem;
             transition: border-color 0.2s;
         }
 
@@ -132,9 +132,9 @@
             background: transparent;
             color: var(--black);
             border: 1px solid var(--border);
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.2s;
             font-family: inherit;
@@ -151,14 +151,14 @@
         }
 
         #commentInput {
-            padding: 1rem 1.25rem;
-            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--black);
             width: 100%;
-            font-size: 1.05rem;
+            font-size: 14px;
             transition: border-color 0.2s;
             background: var(--white);
             font-family: inherit;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         #commentInput:focus {
@@ -174,22 +174,22 @@
             font-weight: 700;
             margin-right: 0.5rem;
             color: var(--black);
-            font-size: 1.1rem;
+            font-size: 14px;
         }
 
         .content {
             word-break: break-word;
-            line-height: 1.8;
+            line-height: 1.6;
             color: var(--black);
-            font-size: 1.05rem;
+            font-size: 14px;
         }
 
         #commentsContainer {
-            min-height: 300px;
+            min-height: 200px;
         }
 
         .comment-header {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
         .comment-body {
@@ -197,53 +197,40 @@
         }
 
         .comments-wrapper {
-            margin-bottom: 4rem;
-        }
-
-        .sticky-input {
-            border-top: 2px solid var(--black);
-            padding-top: 2rem;
+            margin-bottom: 0;
         }
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 2rem 1rem;
             color: var(--gray);
             border: 1px solid var(--border);
         }
 
         .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
             font-weight: 700;
         }
 
         .empty-state-text {
-            font-size: 1.05rem;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
-            body {
-                font-size: 1rem;
-            }
-
             .container {
-                padding: 3rem 1.5rem;
+                padding: 1.5rem 1rem;
             }
 
             .header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 1.5rem;
-                margin-bottom: 3rem;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
             }
 
             #authStatus {
-                font-size: 2rem;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
 
             .top-right {
@@ -256,35 +243,18 @@
 
             .comment {
                 flex-direction: column;
-                gap: 1rem;
-                padding: 1.25rem;
+                gap: 0.75rem;
             }
 
             .buttonBox {
                 width: 100%;
                 flex-wrap: wrap;
             }
-
-            .author {
-                font-size: 1rem;
-            }
-
-            .content {
-                font-size: 1rem;
-            }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 2rem 1rem;
-            }
-
-            #authStatus {
-                font-size: 1.75rem;
-            }
-
-            .section-title {
-                font-size: 1.25rem;
+                padding: 1rem 0.75rem;
             }
 
             .top-right {
@@ -314,17 +284,17 @@
             </div>
         </div>
 
-        <div class="comments-section">
-            <h2 class="section-title">Comments</h2>
-            <div class="comments-wrapper">
-                <div id="commentsContainer"></div>
-            </div>
-        </div>
-
-        <div class="sticky-input">
+        <div class="input-section">
             <form id="commentForm" style="display: none;">
                 <input type="text" id="commentInput" placeholder="Write a comment (max 35 characters)" maxlength="35">
             </form>
+        </div>
+
+        <div class="comments-section">
+            <div class="section-title">COMMENTS</div>
+            <div class="comments-wrapper">
+                <div id="commentsContainer"></div>
+            </div>
         </div>
     </div>
 
