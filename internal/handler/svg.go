@@ -83,31 +83,112 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 
 func generateCommentBox(userName string, comments []model.SvgCommentModel, textColor, boxColor string) string {
 	const (
-		additionalHeightPerComment = 35
-		commentBoxMargin           = 5
+		width         = 800
+		padding       = 24
+		headerHeight  = 70
+		sectionMargin = 32
+		commentHeight = 60
+		commentGap    = 16
 	)
 
+	// Calculate total height
 	numComments := len(comments)
-	commentsHeight := numComments * additionalHeightPerComment
-	inputBoxY := 60 + commentsHeight
-	height := inputBoxY + additionalHeightPerComment
+	if numComments == 0 {
+		numComments = 1 // For empty state
+	}
+	commentsHeight := numComments*commentHeight + (numComments-1)*commentGap
+	totalHeight := headerHeight + sectionMargin + 20 + commentsHeight + padding*2
 
-	svgHeader := fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, 540, height)
-	commentBox := fmt.Sprintf(`<rect x="0" y="0" width="%d" height="%d" fill="%s" stroke="%s" rx="5" ry="5"/>`, 540, height, boxColor, textColor)
-	userNameText := fmt.Sprintf(`<text x="%d" y="20" font-family="Arial" font-size="16" fill="%s">%s</text>`, commentBoxMargin, textColor, userName)
-
-	var commentBoxes []string
-	for i, comment := range comments {
-		commentY := 40 + i*additionalHeightPerComment
-		box := fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="30" fill="%s" stroke="%s" rx="5" ry="5"/>`, commentBoxMargin, commentY, 540-2*commentBoxMargin, boxColor, textColor)
-		text := fmt.Sprintf(`<text x="%d" y="%d" font-family="Arial" font-size="14" fill="%s">%s: %s</text>`, commentBoxMargin*2, commentY+20, textColor, template.HTMLEscapeString(comment.Author), comment.Content)
-		commentBoxes = append(commentBoxes, box, text)
+	// Determine colors
+	borderColor := "#e0e0e0"
+	grayColor := "#666666"
+	if boxColor == "black" {
+		borderColor = "#333333"
+		grayColor = "#999999"
+	} else if boxColor == "transparent" {
+		borderColor = "#e0e0e0"
+		grayColor = "#666666"
 	}
 
-	inputBox := fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="30" fill="%s" stroke="%s" rx="5" ry="5"/>`, commentBoxMargin, inputBoxY, 540-2*commentBoxMargin, boxColor, textColor)
-	inputText := fmt.Sprintf(`<text x="%d" y="%d" font-family="Arial" font-size="14" fill="gray">Enter your comment...</text>`, commentBoxMargin*2, inputBoxY+20)
+	var parts []string
 
-	parts := append([]string{svgHeader, commentBox, userNameText}, commentBoxes...)
-	parts = append(parts, inputBox, inputText, "</svg>")
+	// SVG header with Pretendard font
+	parts = append(parts, fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, totalHeight))
+	parts = append(parts, `<style>
+		@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+		text { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
+	</style>`)
+
+	// Background
+	parts = append(parts, fmt.Sprintf(`<rect width="%d" height="%d" fill="%s"/>`, width, totalHeight, boxColor))
+
+	// Header section
+	headerY := padding
+	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="%s">%s</text>`,
+		padding, headerY+28, textColor, template.HTMLEscapeString(userName)))
+	parts = append(parts, fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="1"/>`,
+		padding, headerY+headerHeight-16, width-padding, headerY+headerHeight-16, borderColor))
+
+	// Comments section title
+	sectionY := headerY + headerHeight + sectionMargin
+	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s" letter-spacing="0.5">COMMENTS</text>`,
+		padding, sectionY, grayColor))
+
+	// Comments
+	commentStartY := sectionY + 20
+	if len(comments) == 0 {
+		// Empty state
+		emptyY := commentStartY
+		parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+			padding, emptyY, width-padding*2, commentHeight, borderColor))
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="28" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
+			width/2, emptyY+30, grayColor))
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s" text-anchor="middle">No comments yet</text>`,
+			width/2, emptyY+48, grayColor))
+	} else {
+		for i, comment := range comments {
+			commentY := commentStartY + i*(commentHeight+commentGap)
+
+			// Comment box
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				padding, commentY, width-padding*2, commentHeight, borderColor))
+
+			// Author
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
+				padding+16, commentY+22, textColor, template.HTMLEscapeString(comment.Author)))
+
+			// Content
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s">%s</text>`,
+				padding+16, commentY+42, textColor, template.HTMLEscapeString(comment.Content)))
+
+			// Buttons (right side)
+			buttonX := width - padding - 200
+			buttonY := commentY + 30
+
+			// Like button
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="60" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
+				buttonX, buttonY-18, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s">+ %d</text>`,
+				buttonX+12, buttonY-2, textColor, comment.Likes))
+
+			// Dislike button
+			buttonX += 68
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="60" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
+				buttonX, buttonY-18, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s">- %d</text>`,
+				buttonX+12, buttonY-2, textColor, comment.Dislikes))
+
+			// Owner like (star)
+			if comment.IsOwnerLiked {
+				buttonX += 68
+				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="36" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
+					buttonX, buttonY-18, borderColor))
+				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s">★</text>`,
+					buttonX+10, buttonY-2, textColor))
+			}
+		}
+	}
+
+	parts = append(parts, "</svg>")
 	return strings.Join(parts, "\n")
 }
