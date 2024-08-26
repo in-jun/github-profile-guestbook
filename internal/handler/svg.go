@@ -83,21 +83,57 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 
 func generateCommentBox(userName string, comments []model.SvgCommentModel, textColor, boxColor string) string {
 	const (
-		width         = 800
-		padding       = 24
-		headerHeight  = 70
-		sectionMargin = 32
-		commentHeight = 60
-		commentGap    = 16
+		width            = 800
+		padding          = 24
+		headerTextSize   = 24
+		headerBaseline   = 28  // Distance from top to text baseline
+		headerBottom     = 16  // Space from text to border line
+		sectionGap       = 32  // Gap between header line and section title
+		sectionTitleSize = 14
+		titleToComments  = 16  // Gap from title to first comment
+		commentPadding   = 16  // Padding inside comment box
+		commentHeight    = 56  // Height of each comment box
+		commentGap       = 16  // Gap between comment boxes
+		bottomPadding    = 24
 	)
+
+	// Calculate layout positions
+	y := padding
+
+	// Header section
+	headerTextY := y + headerBaseline
+	headerLineY := headerTextY + headerBottom
+	y = headerLineY
+
+	// Section title
+	y += sectionGap
+	sectionTitleY := y + sectionTitleSize
+	y = sectionTitleY
+
+	// Comments section
+	y += titleToComments
+	commentsStartY := y
 
 	// Calculate total height
 	numComments := len(comments)
 	if numComments == 0 {
-		numComments = 1 // For empty state
+		totalHeight := commentsStartY + commentHeight + bottomPadding
+		return generateSVGContent(userName, comments, textColor, boxColor, width, totalHeight, headerTextY, headerLineY, sectionTitleY, commentsStartY)
 	}
-	commentsHeight := numComments*commentHeight + (numComments-1)*commentGap
-	totalHeight := headerHeight + sectionMargin + 20 + commentsHeight + padding*2
+
+	totalCommentsHeight := numComments*commentHeight + (numComments-1)*commentGap
+	totalHeight := commentsStartY + totalCommentsHeight + bottomPadding
+
+	return generateSVGContent(userName, comments, textColor, boxColor, width, totalHeight, headerTextY, headerLineY, sectionTitleY, commentsStartY)
+}
+
+func generateSVGContent(userName string, comments []model.SvgCommentModel, textColor, boxColor string, width, totalHeight int, headerTextY, headerLineY, sectionTitleY, commentsStartY int) string {
+	const (
+		padding        = 24
+		commentHeight  = 56
+		commentGap     = 16
+		commentPadding = 16
+	)
 
 	// Determine colors
 	borderColor := "#e0e0e0"
@@ -123,69 +159,88 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 	parts = append(parts, fmt.Sprintf(`<rect width="%d" height="%d" fill="%s"/>`, width, totalHeight, boxColor))
 
 	// Header section
-	headerY := padding
 	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="%s">%s</text>`,
-		padding, headerY+28, textColor, template.HTMLEscapeString(userName)))
+		padding, headerTextY, textColor, template.HTMLEscapeString(userName)))
 	parts = append(parts, fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="1"/>`,
-		padding, headerY+headerHeight-16, width-padding, headerY+headerHeight-16, borderColor))
+		padding, headerLineY, width-padding, headerLineY, borderColor))
 
 	// Comments section title
-	sectionY := headerY + headerHeight + sectionMargin
 	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s" letter-spacing="0.5">COMMENTS</text>`,
-		padding, sectionY, grayColor))
+		padding, sectionTitleY, grayColor))
 
 	// Comments
-	commentStartY := sectionY + 20
 	if len(comments) == 0 {
 		// Empty state
-		emptyY := commentStartY
+		emptyY := commentsStartY
 		parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 			padding, emptyY, width-padding*2, commentHeight, borderColor))
-		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="28" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
-			width/2, emptyY+30, grayColor))
+
+		// Icon (centered vertically and horizontally)
+		iconY := emptyY + commentHeight/2 - 10
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="32" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
+			width/2, iconY+24, grayColor))
+
+		// Text (below icon)
+		textY := iconY + 40
 		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s" text-anchor="middle">No comments yet</text>`,
-			width/2, emptyY+48, grayColor))
+			width/2, textY, grayColor))
 	} else {
 		for i, comment := range comments {
-			commentY := commentStartY + i*(commentHeight+commentGap)
+			commentY := commentsStartY + i*(commentHeight+commentGap)
 
 			// Comment box
 			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 				padding, commentY, width-padding*2, commentHeight, borderColor))
 
-			// Author
+			// Text content (left side)
+			textX := padding + commentPadding
+
+			// Author (top)
+			authorY := commentY + commentPadding + 14 // 16 padding + 14 baseline
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
-				padding+16, commentY+22, textColor, template.HTMLEscapeString(comment.Author)))
+				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
 
-			// Content
+			// Content (below author, 8px gap)
+			contentY := authorY + 20
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s">%s</text>`,
-				padding+16, commentY+42, textColor, template.HTMLEscapeString(comment.Content)))
+				textX, contentY, textColor, template.HTMLEscapeString(comment.Content)))
 
-			// Buttons (right side)
-			buttonX := width - padding - 200
-			buttonY := commentY + 30
+			// Buttons (right side, centered vertically)
+			buttonY := commentY + commentHeight/2
+			buttonStartX := width - padding - 16
 
-			// Like button
-			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="60" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
-				buttonX, buttonY-18, borderColor))
-			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s">+ %d</text>`,
-				buttonX+12, buttonY-2, textColor, comment.Likes))
+			// Calculate button positions from right to left
+			buttonWidth := 50
+			buttonHeight := 24
+			buttonGap := 8
+
+			currentX := buttonStartX
+
+			// Owner like (star) - rightmost if exists
+			if comment.IsOwnerLiked {
+				starWidth := 32
+				currentX -= starWidth
+				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight, borderColor))
+				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s" text-anchor="middle" dominant-baseline="middle">★</text>`,
+					currentX+starWidth/2, buttonY, textColor))
+				currentX -= buttonGap
+			}
 
 			// Dislike button
-			buttonX += 68
-			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="60" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
-				buttonX, buttonY-18, borderColor))
-			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s">- %d</text>`,
-				buttonX+12, buttonY-2, textColor, comment.Dislikes))
+			currentX -= buttonWidth
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				currentX, buttonY-buttonHeight/2, buttonWidth, buttonHeight, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
+				currentX+buttonWidth/2, buttonY, textColor, comment.Dislikes))
+			currentX -= buttonGap
 
-			// Owner like (star)
-			if comment.IsOwnerLiked {
-				buttonX += 68
-				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="36" height="28" fill="none" stroke="%s" stroke-width="1"/>`,
-					buttonX, buttonY-18, borderColor))
-				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s">★</text>`,
-					buttonX+10, buttonY-2, textColor))
-			}
+			// Like button
+			currentX -= buttonWidth
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				currentX, buttonY-buttonHeight/2, buttonWidth, buttonHeight, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">+ %d</text>`,
+				currentX+buttonWidth/2, buttonY, textColor, comment.Likes))
 		}
 	}
 
