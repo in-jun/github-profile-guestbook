@@ -205,15 +205,16 @@ func generateSVGContent(userName string, comments []model.SvgCommentModel, textC
 			// Text content (left side)
 			textX := padding + 16 // 16px left padding inside box
 
-			// Calculate balanced vertical spacing
-			// Box: 56px, Content: 34px (14+6+14), Margin: 11px each side
-			// Author baseline: 11 (top padding) + 11 (baseline offset) = 22
-			authorY := commentY + 11 + 11 // = commentY + 22
+			// Calculate visual balanced spacing
+			// Box: 56px = 12 (top) + 14 (author) + 6 (gap) + 14 (content) + 10 (bottom)
+			// Slightly more top padding for better visual balance
+			// Author baseline: 12 (top padding) + 11 (baseline offset) = 23
+			authorY := commentY + 12 + 11 // = commentY + 23
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
 				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
 
-			// Content baseline: 11 (top) + 14 (author) + 6 (gap) + 11 (baseline offset) = 42
-			contentY := commentY + 11 + 14 + 6 + 11 // = commentY + 42
+			// Content baseline: 12 (top) + 14 (author) + 6 (gap) + 11 (baseline offset) = 43
+			contentY := commentY + 12 + 14 + 6 + 11 // = commentY + 43
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s">%s</text>`,
 				textX, contentY, textColor, template.HTMLEscapeString(comment.Content)))
 
