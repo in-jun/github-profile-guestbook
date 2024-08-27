@@ -3,7 +3,6 @@ package handler
 import (
 	"database/sql"
 	"errors"
-	"html/template"
 	"net/http"
 	"regexp"
 
@@ -54,12 +53,11 @@ func (h *CommentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	content := template.HTMLEscapeString(req.Content)
-
+	// Store raw content in DB, escape only when rendering (SVG, HTML)
 	_, err := h.db.Exec(
 		`INSERT INTO comments (receiver_id, author_id, content)
 		 VALUES ((SELECT id FROM users WHERE github_login = $1), $2, $3)`,
-		username, authorID, content,
+		username, authorID, req.Content,
 	)
 	if err != nil {
 		if isUniqueViolation(err) {
