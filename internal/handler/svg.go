@@ -88,9 +88,9 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		headerTextSize   = 24
 		headerBaseline   = 28  // Distance from top to text baseline
 		headerBottom     = 16  // Space from text to border line
-		sectionGap       = 32  // Gap between header line and section title
+		sectionGap       = 24  // Gap between header line and section title
 		sectionTitleSize = 14
-		titleToComments  = 16  // Gap from title to first comment
+		titleToComments  = 24  // Gap from title to first comment (same as sectionGap)
 		commentPadding   = 14  // Padding inside comment box (top/bottom)
 		commentHeight    = 60  // Height of each comment box
 		commentGap       = 16  // Gap between comment boxes
