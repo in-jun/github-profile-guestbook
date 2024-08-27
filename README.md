@@ -1,167 +1,63 @@
 # GitHub Profile Comments
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/in-jun/github-profile-comments)](https://goreportcard.com/report/github.com/in-jun/github-profile-comments)
+Add a comment system to your GitHub profile README.
 
-Interactive comment system for GitHub profile README. Adds dynamic communication functionality to GitHub profiles.
+## Usage
 
----
-
-## 목차
-
--   [소개](#소개)
--   [기능](#기능)
--   [시작하기](#시작하기)
--   [테마](#테마)
--   [기술 스택](#기술-스택)
--   [아키텍처](#아키텍처)
-
----
-
-## 소개
-
-GitHub Profile Comments는 GitHub 프로필에 동적인 소통 기능을 추가하는 도구입니다.
-
-### 작동 방식
-
-```mermaid
-sequenceDiagram
-    participant User as 사용자
-    participant GitHub as GitHub OAuth
-    participant Service as 댓글 서비스
-    participant DB as 데이터베이스
-
-    User->>GitHub: OAuth 로그인
-    GitHub->>Service: 사용자 정보
-    Service->>DB: 사용자 저장
-    Service->>User: 로그인 성공
-    User->>Service: 댓글 작성
-    Service->>DB: 댓글 저장
-```
-
-## 기능
-
-### 핵심 기능
-
--   실시간 댓글
--   좋아요/싫어요
--   커스텀 테마
--   GitHub OAuth 인증
-
-### 사용자 기능
-
-| 기능      | 설명                 | 권한        |
-| --------- | -------------------- | ----------- |
-| 댓글 작성 | 프로필에 댓글 남기기 | 로그인 필요 |
-| 좋아요    | 댓글에 좋아요 표시   | 로그인 필요 |
-
-## 시작하기
-
-### 1. 회원가입
-
-```bash
-# 1. 인증 페이지 방문
-https://github-comment.injun.dev/api/auth/login
-
-# 2. GitHub OAuth 로그인 진행
-
-# 3. 성공 응답 확인
-{"github_id":123456789,"message":"Logged in successfully"}
-```
-
-### 2. 프로필 설정
+### 1. Add to your profile README
 
 ```markdown
-# README.md에 추가
-
-[![Comments](https://github-comment.injun.dev/api/user/$깃허브아이디/svg?theme=$테마)](https://github-comment.injun.dev/$깃허브아이디)
+[![Comments](https://github-comment.injun.dev/api/user/YOUR_USERNAME/svg?theme=white)](https://github-comment.injun.dev/YOUR_USERNAME)
 ```
 
-### 설치 확인
+Replace `YOUR_USERNAME` with your GitHub username.
 
--   프로필 페이지 새로고침
--   댓글 위젯 표시 확인
--   테마 적용 확인
+### 2. Login
 
-## 테마
+Visit `https://github-comment.injun.dev/YOUR_USERNAME` and log in with GitHub OAuth.
 
-### 사용 가능한 테마
+### 3. Leave a comment
 
-| 테마        | 설명        | 예시                                                                                                                  |
-| ----------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| black       | 다크 모드   | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=black)](https://github-comment.injun.dev/in-jun)       |
-| white       | 라이트 모드 | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=white)](https://github-comment.injun.dev/in-jun)       |
-| transparent | 투명 배경   | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=transparent)](https://github-comment.injun.dev/in-jun) |
+Write a comment (max 35 characters) on any profile.
 
-## 기술 스택
+## Themes
 
-### 프론트엔드
+Change the appearance by modifying the `theme` parameter:
 
-```yaml
-UI:
-    - HTML5
-    - CSS3
-    - JavaScript (ES6+)
+- `theme=white` - Light background (default)
+- `theme=black` - Dark background
+- `theme=transparent` - Transparent background
 
-기능:
-    - 반응형 디자인
-    - SVG 렌더링
+Example:
+```markdown
+[![Comments](https://github-comment.injun.dev/api/user/in-jun/svg?theme=black)](https://github-comment.injun.dev/in-jun)
 ```
 
-### 백엔드
+## Features
 
-```yaml
-서버:
-    - Go
-    - Gin Framework
-    - GORM ORM
+- Real-time comment system
+- Like/Dislike functionality
+- Owner can highlight favorite comments with a star
+- Minimal design with sharp edges and monochrome colors
+- Pretendard font
+- Responsive layout
 
-데이터베이스:
-    - MySQL
+## Examples
 
-인증:
-    - GitHub OAuth
-    - JWT
-```
+| Theme | Preview |
+|-------|---------|
+| White | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=white)](https://github-comment.injun.dev/in-jun) |
+| Black | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=black)](https://github-comment.injun.dev/in-jun) |
+| Transparent | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=transparent)](https://github-comment.injun.dev/in-jun) |
 
-### 배포
+## Tech Stack
 
-```yaml
-인프라:
-    - Docker
-    - injunweb (https://injunweb.com)
-```
+**Backend:** Go, Gin, PostgreSQL, JWT authentication
 
-## 아키텍처
+**Frontend:** Vanilla HTML/CSS/JavaScript
 
-### 데이터베이스 구조
+**Deployment:** Docker, injunweb
 
-```mermaid
-erDiagram
-    GITHUBUSER {
-        uint ID PK
-        float64 GitHubID
-        string GitHubLogin
-    }
-    COMMENT {
-        uint ID PK
-        uint ReceiverID FK
-        uint AuthorID FK
-        string Content
-        bool IsOwnerLiked
-    }
-    LIKED {
-        uint ID PK
-        uint CommentID FK
-        uint UserID FK
-    }
-    DISLIKED {
-        uint ID PK
-        uint CommentID FK
-        uint UserID FK
-    }
-    GITHUBUSER ||--o{ COMMENT : "writes/receives"
-    GITHUBUSER ||--o{ LIKED : "likes"
-    GITHUBUSER ||--o{ DISLIKED : "dislikes"
-    COMMENT ||--o{ LIKED : "has"
-    COMMENT ||--o{ DISLIKED : "has"
-```
+## License
+
+MIT
