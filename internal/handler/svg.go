@@ -106,12 +106,13 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 	y = headerLineY
 
 	// Section title
-	y += sectionGap
-	sectionTitleY := y + sectionTitleSize
-	y = sectionTitleY
+	y += sectionGap // Gap from header line to title TOP
+	// For 14px font, baseline is approximately at 11px from top
+	sectionTitleY := y + 11
+	y += sectionTitleSize // Move y to title BOTTOM
 
 	// Comments section
-	y += titleToComments
+	y += titleToComments // Gap from title BOTTOM to comments START
 	commentsStartY := y
 
 	// Calculate total height
