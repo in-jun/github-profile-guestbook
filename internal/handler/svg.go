@@ -82,14 +82,6 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 }
 
 func generateCommentBox(userName string, comments []model.SvgCommentModel, textColor, boxColor string) string {
-	// Calculate approximate height
-	baseHeight := 200 // header + title + padding
-	commentHeight := len(comments) * 120 // ~120px per comment (varies with text length)
-	if len(comments) == 0 {
-		commentHeight = 100 // empty state
-	}
-	totalHeight := baseHeight + commentHeight
-
 	// Determine colors
 	borderColor := "#e0e0e0"
 	grayColor := "#666666"
@@ -101,15 +93,15 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		grayColor = "#666666"
 	}
 
-	return generateHTMLContent(userName, comments, textColor, boxColor, borderColor, grayColor, totalHeight)
+	return generateHTMLContent(userName, comments, textColor, boxColor, borderColor, grayColor)
 }
 
-func generateHTMLContent(userName string, comments []model.SvgCommentModel, textColor, boxColor, borderColor, grayColor string, totalHeight int) string {
+func generateHTMLContent(userName string, comments []model.SvgCommentModel, textColor, boxColor, borderColor, grayColor string) string {
 	var parts []string
 
-	// SVG wrapper
-	parts = append(parts, fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="%d">`, totalHeight))
-	parts = append(parts, `<foreignObject x="0" y="0" width="800" height="100%">`)
+	// SVG wrapper without height - will auto-size to content
+	parts = append(parts, `<svg xmlns="http://www.w3.org/2000/svg" width="800">`)
+	parts = append(parts, `<foreignObject x="0" y="0" width="100%" height="100%">`)
 	parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml">`)
 
 	// Embedded styles
