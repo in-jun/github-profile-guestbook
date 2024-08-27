@@ -286,7 +286,7 @@
 
         <div class="input-section">
             <form id="commentForm" style="display: none;">
-                <input type="text" id="commentInput" placeholder="Write a comment (max 35 characters)" maxlength="35">
+                <input type="text" id="commentInput" placeholder="Write a comment (max 200 characters)" maxlength="200">
             </form>
         </div>
 
@@ -490,8 +490,8 @@
             const content = commentInput.value.trim();
             if (!content) return;
 
-            if (content.length > 35) {
-                alert("Error: Comment should be maximum 35 characters.");
+            if (content.length > 200) {
+                alert("Error: Comment should be maximum 200 characters.");
                 return;
             }
 

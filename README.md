@@ -18,7 +18,7 @@ Visit `https://github-comment.injun.dev/YOUR_USERNAME` and log in with GitHub OA
 
 ### 3. Leave a comment
 
-Write a comment (max 35 characters) on any profile.
+Write a comment (max 200 characters) on any profile.
 
 ## Themes
 

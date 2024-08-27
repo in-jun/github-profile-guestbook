@@ -91,8 +91,8 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		sectionGap       = 24  // Gap between header line and section title
 		sectionTitleSize = 14
 		titleToComments  = 24  // Gap from title to first comment (same as sectionGap)
-		commentPadding   = 11  // Padding inside comment box (top/bottom)
-		commentHeight    = 56  // Height of each comment box
+		commentPadding   = 12  // Padding inside comment box (top/bottom)
+		commentHeight    = 100 // Height of each comment box (increased for multiline)
 		commentGap       = 16  // Gap between comment boxes
 		bottomPadding    = 24
 	)
@@ -202,24 +202,20 @@ func generateSVGContent(userName string, comments []model.SvgCommentModel, textC
 			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 				padding, commentY, width-padding*2, commentHeight, borderColor))
 
-			// Text content (left side)
+			// Text content using foreignObject for word wrapping
 			textX := padding + 16 // 16px left padding inside box
+			textWidth := width - padding*2 - 32 - 158 // minus paddings and buttons area (50+50+32+26)
 
-			// Calculate visual balanced spacing
-			// Box: 56px = 12 (top) + 14 (author) + 6 (gap) + 14 (content) + 10 (bottom)
-			// Slightly more top padding for better visual balance
-			// Author baseline: 12 (top padding) + 11 (baseline offset) = 23
-			authorY := commentY + 12 + 11 // = commentY + 23
-			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
-				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
+			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
+				textX, commentY+commentPadding, textWidth, commentHeight-commentPadding*2))
+			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Pretendard Variable', Pretendard, sans-serif; font-size: 14px; line-height: 1.5; color: `+textColor+`; height: 100%; overflow: hidden;">`)
+			parts = append(parts, fmt.Sprintf(`<div style="font-weight: 700; margin-bottom: 4px;">%s</div>`, template.HTMLEscapeString(comment.Author)))
+			parts = append(parts, fmt.Sprintf(`<div style="word-wrap: break-word; overflow-wrap: break-word;">%s</div>`, template.HTMLEscapeString(comment.Content)))
+			parts = append(parts, `</div>`)
+			parts = append(parts, `</foreignObject>`)
 
-			// Content baseline: 12 (top) + 14 (author) + 6 (gap) + 11 (baseline offset) = 43
-			contentY := commentY + 12 + 14 + 6 + 11 // = commentY + 43
-			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s">%s</text>`,
-				textX, contentY, textColor, template.HTMLEscapeString(comment.Content)))
-
-			// Buttons (right side, centered vertically)
-			buttonY := commentY + commentHeight/2
+			// Buttons (right side, positioned at top)
+			buttonY := commentY + 24 // 24px from top of box
 			buttonStartX := width - padding - 16
 
 			// Calculate button positions from right to left

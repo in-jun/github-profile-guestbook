@@ -44,8 +44,8 @@ func (h *CommentHandler) Create(c *gin.Context) {
 	}
 
 	runes := []rune(req.Content)
-	if len(runes) > 35 {
-		req.Content = string(runes[:35])
+	if len(runes) > 200 {
+		req.Content = string(runes[:200])
 	}
 
 	if zalgoPattern.MatchString(req.Content) {
