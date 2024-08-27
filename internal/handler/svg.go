@@ -91,8 +91,8 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		sectionGap       = 24  // Gap between header line and section title
 		sectionTitleSize = 14
 		titleToComments  = 24  // Gap from title to first comment (same as sectionGap)
-		commentPadding   = 14  // Padding inside comment box (top/bottom)
-		commentHeight    = 60  // Height of each comment box
+		commentPadding   = 11  // Padding inside comment box (top/bottom)
+		commentHeight    = 56  // Height of each comment box
 		commentGap       = 16  // Gap between comment boxes
 		bottomPadding    = 24
 	)
@@ -205,15 +205,15 @@ func generateSVGContent(userName string, comments []model.SvgCommentModel, textC
 			// Text content (left side)
 			textX := padding + 16 // 16px left padding inside box
 
-			// Author (top)
-			// Box top + 14px top padding + 14px to baseline
-			authorY := commentY + 14 + 14 // = commentY + 28
+			// Calculate balanced vertical spacing
+			// Box: 56px, Content: 34px (14+6+14), Margin: 11px each side
+			// Author baseline: 11 (top padding) + 11 (baseline offset) = 22
+			authorY := commentY + 11 + 11 // = commentY + 22
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
 				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
 
-			// Content (below author)
-			// Author baseline + 6px gap + 14px to next baseline
-			contentY := authorY + 6 + 14 // = commentY + 48
+			// Content baseline: 11 (top) + 14 (author) + 6 (gap) + 11 (baseline offset) = 42
+			contentY := commentY + 11 + 14 + 6 + 11 // = commentY + 42
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s">%s</text>`,
 				textX, contentY, textColor, template.HTMLEscapeString(comment.Content)))
 
