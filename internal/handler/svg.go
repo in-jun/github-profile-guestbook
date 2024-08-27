@@ -117,7 +117,8 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 	// Calculate total height
 	numComments := len(comments)
 	if numComments == 0 {
-		totalHeight := commentsStartY + commentHeight + bottomPadding
+		const emptyBoxHeight = 80
+		totalHeight := commentsStartY + emptyBoxHeight + bottomPadding
 		return generateSVGContent(userName, comments, textColor, boxColor, width, totalHeight, headerTextY, headerLineY, sectionTitleY, commentsStartY)
 	}
 
@@ -170,20 +171,28 @@ func generateSVGContent(userName string, comments []model.SvgCommentModel, textC
 
 	// Comments
 	if len(comments) == 0 {
-		// Empty state
+		// Empty state (larger box for better layout)
+		const emptyBoxHeight = 80
 		emptyY := commentsStartY
 		parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
-			padding, emptyY, width-padding*2, commentHeight, borderColor))
+			padding, emptyY, width-padding*2, emptyBoxHeight, borderColor))
 
-		// Icon (centered vertically and horizontally)
-		iconY := emptyY + commentHeight/2 - 10
-		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="32" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
-			width/2, iconY+24, grayColor))
+		// Calculate vertical centering
+		// Icon: 24px font-size
+		// Gap: 12px
+		// Text: 14px font-size
+		// Total content: 24 + 12 + 14 = 50px
+		// Top margin: (80 - 50) / 2 = 15px
 
-		// Text (below icon)
-		textY := iconY + 40
+		// Icon baseline (centered)
+		iconBaseline := emptyY + 15 + 18 // top margin + approximate baseline position
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
+			width/2, iconBaseline, grayColor))
+
+		// Text baseline (below icon with 12px gap)
+		textBaseline := iconBaseline + 12 + 14 // gap + text baseline
 		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s" text-anchor="middle">No comments yet</text>`,
-			width/2, textY, grayColor))
+			width/2, textBaseline, grayColor))
 	} else {
 		for i, comment := range comments {
 			commentY := commentsStartY + i*(commentHeight+commentGap)
