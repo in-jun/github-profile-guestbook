@@ -132,9 +132,9 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 func generateSVGContent(userName string, comments []model.SvgCommentModel, textColor, boxColor string, width, totalHeight int, headerTextY, headerLineY, sectionTitleY, commentsStartY int) string {
 	const (
 		padding        = 24
-		commentHeight  = 56
+		commentHeight  = 100
 		commentGap     = 16
-		commentPadding = 16
+		commentPadding = 12
 	)
 
 	// Determine colors
