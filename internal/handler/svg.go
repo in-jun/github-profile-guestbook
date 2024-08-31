@@ -99,7 +99,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		titleDescent           = 3
 
 		// Comment box
-		commentBoxHeight  = 100
+		commentBoxHeight  = 116 // 12 + 88 + 16 = 116 (padding + content + extra)
 		commentBoxGap     = 16
 		commentBoxPadding = 12
 
@@ -141,7 +141,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		totalHeight = commentsStartY + emptyBoxHeight + bottomPadding // 120 + 80 + 24 = 224
 	} else {
 		commentsHeight := len(comments)*commentBoxHeight + (len(comments)-1)*commentBoxGap
-		totalHeight = commentsStartY + commentsHeight + bottomPadding // 120 + n*116 + 24 = 144 + n*116
+		totalHeight = commentsStartY + commentsHeight + bottomPadding // 120 + n*116 + (n-1)*16 + 24 = 144 + n*132
 	}
 
 	var parts []string
