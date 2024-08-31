@@ -99,8 +99,8 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 func generateHTMLContent(userName string, comments []model.SvgCommentModel, textColor, boxColor, borderColor, grayColor string) string {
 	var parts []string
 
-	// SVG wrapper without height - will auto-size to content
-	parts = append(parts, `<svg xmlns="http://www.w3.org/2000/svg" width="800">`)
+	// SVG wrapper with large height to prevent clipping
+	parts = append(parts, `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="5000">`)
 	parts = append(parts, `<foreignObject x="0" y="0" width="100%" height="100%">`)
 	parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml">`)
 
