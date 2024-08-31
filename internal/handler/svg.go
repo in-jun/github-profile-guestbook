@@ -82,6 +82,42 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 }
 
 func generateCommentBox(userName string, comments []model.SvgCommentModel, textColor, boxColor string) string {
+	const (
+		width  = 800
+		padding = 24
+
+		// Header section
+		headerFontSize   = 24
+		headerBaseline   = 18 // 0.75 * fontSize
+		headerBottomGap  = 16
+
+		// Section title
+		sectionTitleFontSize   = 14
+		sectionTitleBaseline   = 11 // 0.78 * fontSize
+		sectionTitleTopGap     = 24
+		sectionTitleBottomGap  = 24
+		titleDescent           = 3
+
+		// Comment box
+		commentBoxHeight  = 100
+		commentBoxGap     = 16
+		commentBoxPadding = 12
+
+		// Buttons
+		buttonYOffset = 24 // from top of comment box
+		buttonHeight  = 24
+		buttonGap     = 8
+		likeWidth     = 50
+		dislikeWidth  = 50
+		starWidth     = 32
+
+		// Empty state
+		emptyBoxHeight = 80
+
+		// Bottom padding
+		bottomPadding = 24
+	)
+
 	// Determine colors
 	borderColor := "#e0e0e0"
 	grayColor := "#666666"
@@ -93,68 +129,115 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		grayColor = "#666666"
 	}
 
-	return generateHTMLContent(userName, comments, textColor, boxColor, borderColor, grayColor)
-}
+	// Calculate layout positions
+	headerTextY := padding + headerBaseline                                    // 24 + 18 = 42
+	headerLineY := headerTextY + headerBottomGap                               // 42 + 16 = 58
+	sectionTitleY := headerLineY + sectionTitleTopGap + sectionTitleBaseline   // 58 + 24 + 11 = 93
+	commentsStartY := sectionTitleY + titleDescent + sectionTitleBottomGap     // 93 + 3 + 24 = 120
 
-func generateHTMLContent(userName string, comments []model.SvgCommentModel, textColor, boxColor, borderColor, grayColor string) string {
+	// Calculate total height
+	var totalHeight int
+	if len(comments) == 0 {
+		totalHeight = commentsStartY + emptyBoxHeight + bottomPadding // 120 + 80 + 24 = 224
+	} else {
+		commentsHeight := len(comments)*commentBoxHeight + (len(comments)-1)*commentBoxGap
+		totalHeight = commentsStartY + commentsHeight + bottomPadding // 120 + n*116 + 24 = 144 + n*116
+	}
+
 	var parts []string
 
-	// SVG wrapper with large height to prevent clipping
-	parts = append(parts, `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="5000">`)
-	parts = append(parts, `<foreignObject x="0" y="0" width="100%" height="100%">`)
-	parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml">`)
-
-	// Embedded styles
+	// SVG header with Pretendard font
+	parts = append(parts, fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, totalHeight))
 	parts = append(parts, `<style>
 		@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
-		* { margin: 0; padding: 0; box-sizing: border-box; }
-		body { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
+		text { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
 	</style>`)
 
-	// Main container
-	parts = append(parts, fmt.Sprintf(`<div style="background: %s; color: %s; padding: 24px; min-height: 100%%;">`, boxColor, textColor))
+	// Background
+	parts = append(parts, fmt.Sprintf(`<rect width="%d" height="%d" fill="%s"/>`, width, totalHeight, boxColor))
 
-	// Header
-	parts = append(parts, fmt.Sprintf(`<div style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">%s</div>`, template.HTMLEscapeString(userName)))
-	parts = append(parts, fmt.Sprintf(`<div style="border-bottom: 1px solid %s; margin-bottom: 24px;"></div>`, borderColor))
+	// Header text
+	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="%s">%s</text>`,
+		padding, headerTextY, headerFontSize, textColor, template.HTMLEscapeString(userName)))
+
+	// Header line
+	parts = append(parts, fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="%s" stroke-width="1"/>`,
+		padding, headerLineY, width-padding, headerLineY, borderColor))
 
 	// Section title
-	parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; font-weight: 700; color: %s; letter-spacing: 0.5px; margin-bottom: 24px;">COMMENTS</div>`, grayColor))
+	parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="%s" letter-spacing="0.5">COMMENTS</text>`,
+		padding, sectionTitleY, sectionTitleFontSize, grayColor))
 
 	// Comments
 	if len(comments) == 0 {
-		// Empty state
-		parts = append(parts, fmt.Sprintf(`<div style="border: 1px solid %s; padding: 30px; text-align: center; color: %s;">`, borderColor, grayColor))
-		parts = append(parts, `<div style="font-size: 24px; font-weight: 700; margin-bottom: 12px;">—</div>`)
-		parts = append(parts, `<div style="font-size: 14px;">No comments yet</div>`)
-		parts = append(parts, `</div>`)
+		// Empty state box
+		emptyY := commentsStartY
+		parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+			padding, emptyY, width-padding*2, emptyBoxHeight, borderColor))
+
+		// Empty icon and text (centered)
+		iconY := emptyY + 40 - 9      // center - half of (24 + 12 + 14) / 2
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
+			width/2, iconY+18, grayColor))
+
+		textY := iconY + 24 + 12 + 11 // icon + gap + text baseline
+		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s" text-anchor="middle">No comments yet</text>`,
+			width/2, textY, grayColor))
 	} else {
-		for _, comment := range comments {
-			parts = append(parts, fmt.Sprintf(`<div style="border: 1px solid %s; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start;">`, borderColor))
+		for i, comment := range comments {
+			commentY := commentsStartY + i*(commentBoxHeight+commentBoxGap)
 
-			// Left: text content
-			parts = append(parts, `<div style="flex: 1; margin-right: 16px; min-width: 0;">`)
-			parts = append(parts, fmt.Sprintf(`<div style="font-weight: 700; margin-bottom: 4px;">%s</div>`, template.HTMLEscapeString(comment.Author)))
-			parts = append(parts, fmt.Sprintf(`<div style="word-wrap: break-word; overflow-wrap: break-word; line-height: 1.5;">%s</div>`, template.HTMLEscapeString(comment.Content)))
+			// Comment box border
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				padding, commentY, width-padding*2, commentBoxHeight, borderColor))
+
+			// foreignObject for text content with -webkit-line-clamp
+			textX := padding + 16
+			textWidth := width - padding*2 - 32 - 158 // 158 = button area (50+8+50+8+32+10)
+			foreignY := commentY + commentBoxPadding
+			foreignHeight := commentBoxHeight - commentBoxPadding*2
+
+			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
+				textX, foreignY, textWidth, foreignHeight))
+			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Pretendard Variable', Pretendard, sans-serif; height: 100%;">`)
+			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; font-weight: 700; color: %s; line-height: 1.5; margin-bottom: 4px;">%s</div>`,
+				textColor, template.HTMLEscapeString(comment.Author)))
+			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
+				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
+			parts = append(parts, `</foreignObject>`)
 
-			// Right: buttons
-			parts = append(parts, `<div style="display: flex; gap: 8px; flex-shrink: 0;">`)
-			parts = append(parts, fmt.Sprintf(`<div style="border: 1px solid %s; padding: 4px 12px; font-size: 12px; font-weight: 500;">+ %d</div>`, borderColor, comment.Likes))
-			parts = append(parts, fmt.Sprintf(`<div style="border: 1px solid %s; padding: 4px 12px; font-size: 12px; font-weight: 500;">- %d</div>`, borderColor, comment.Dislikes))
+			// Buttons (right side, from right to left)
+			buttonY := commentY + buttonYOffset
+			currentX := width - padding - 16
+
+			// Owner like (star) - rightmost if exists
 			if comment.IsOwnerLiked {
-				parts = append(parts, fmt.Sprintf(`<div style="border: 1px solid %s; padding: 4px 8px; font-size: 12px;">★</div>`, borderColor))
+				currentX -= starWidth
+				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight, borderColor))
+				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s" text-anchor="middle" dominant-baseline="middle">★</text>`,
+					currentX+starWidth/2, buttonY, textColor))
+				currentX -= buttonGap
 			}
-			parts = append(parts, `</div>`)
 
-			parts = append(parts, `</div>`) // End comment
+			// Dislike button
+			currentX -= dislikeWidth
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				currentX, buttonY-buttonHeight/2, dislikeWidth, buttonHeight, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
+				currentX+dislikeWidth/2, buttonY, textColor, comment.Dislikes))
+			currentX -= buttonGap
+
+			// Like button
+			currentX -= likeWidth
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				currentX, buttonY-buttonHeight/2, likeWidth, buttonHeight, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">+ %d</text>`,
+				currentX+likeWidth/2, buttonY, textColor, comment.Likes))
 		}
 	}
 
-	parts = append(parts, `</div>`) // End container
-	parts = append(parts, `</div>`) // End xmlns div
-	parts = append(parts, `</foreignObject>`)
-	parts = append(parts, `</svg>`)
-
+	parts = append(parts, "</svg>")
 	return strings.Join(parts, "\n")
 }
