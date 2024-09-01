@@ -99,7 +99,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		titleDescent           = 3
 
 		// Comment box
-		commentBoxHeight  = 116 // 12 + 88 + 16 = 116 (padding + content + extra)
+		commentBoxHeight  = 68 // 12 + 21 + 4 + 21 + 10 = 68 (padding + author + gap + content + padding)
 		commentBoxGap     = 16
 		commentBoxPadding = 12
 
@@ -141,7 +141,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		totalHeight = commentsStartY + emptyBoxHeight + bottomPadding // 120 + 80 + 24 = 224
 	} else {
 		commentsHeight := len(comments)*commentBoxHeight + (len(comments)-1)*commentBoxGap
-		totalHeight = commentsStartY + commentsHeight + bottomPadding // 120 + n*116 + (n-1)*16 + 24 = 144 + n*132
+		totalHeight = commentsStartY + commentsHeight + bottomPadding // 120 + n*68 + (n-1)*16 + 24 = 144 + n*84
 	}
 
 	var parts []string
@@ -202,7 +202,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Pretendard Variable', Pretendard, sans-serif; height: 100%;">`)
 			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; font-weight: 700; color: %s; line-height: 1.5; margin-bottom: 4px;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Author)))
-			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
+			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
 			parts = append(parts, `</foreignObject>`)
