@@ -191,17 +191,19 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 				padding, commentY, width-padding*2, commentBoxHeight, borderColor))
 
-			// foreignObject for text content with -webkit-line-clamp
+			// Author - pure SVG text
 			textX := padding + 16
 			textWidth := width - padding*2 - 32 - 158 // 158 = button area (50+8+50+8+32+10)
-			foreignY := commentY + commentBoxPadding
-			foreignHeight := commentBoxHeight - commentBoxPadding*2
+			authorY := commentY + commentBoxPadding + 11 // baseline offset
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
+				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
 
+			// Content - foreignObject for ellipsis only
+			contentY := commentY + commentBoxPadding + 21 + 4 // author line-height + gap
+			contentHeight := 21 // 1 line
 			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
-				textX, foreignY, textWidth, foreignHeight))
+				textX, contentY, textWidth, contentHeight))
 			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Pretendard Variable', Pretendard, sans-serif; height: 100%;">`)
-			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; font-weight: 700; color: %s; line-height: 1.5; margin-bottom: 4px;">%s</div>`,
-				textColor, template.HTMLEscapeString(comment.Author)))
 			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
