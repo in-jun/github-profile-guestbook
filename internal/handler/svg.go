@@ -104,7 +104,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		commentBoxPadding = 12
 
 		// Buttons
-		buttonYOffset = 24 // from top of comment box
+		buttonYOffset = 18 // from top of comment box (upper aligned)
 		buttonHeight  = 24
 		buttonGap     = 8
 		likeWidth     = 50
