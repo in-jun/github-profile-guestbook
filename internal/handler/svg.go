@@ -93,10 +93,9 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		sectionTitleTopGap     = 24
 		sectionTitleBottomGap  = 24
 		titleDescent           = 3
-		commentBoxHeight       = 68
+		commentBoxHeight       = 92
 		commentBoxGap          = 16
 		commentBoxPadding      = 12
-		buttonYOffset          = 18
 		buttonHeight           = 24
 		buttonGap              = 8
 		likeWidth              = 50
@@ -168,7 +167,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 				padding, commentY, width-padding*2, commentBoxHeight, borderColor))
 
 			textX := padding + 16
-			textWidth := width - padding*2 - 32 - 158
+			textWidth := width - padding*2 - 32
 			authorY := commentY + commentBoxPadding + 11
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="%s">%s</text>`,
 				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
@@ -183,30 +182,27 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 			parts = append(parts, `</div>`)
 			parts = append(parts, `</foreignObject>`)
 
-			buttonY := commentY + buttonYOffset
-			currentX := width - padding - 16
+			buttonY := contentY + 21 + 8 + buttonHeight/2
+			currentX := textX
 
-			if comment.IsOwnerLiked {
-				currentX -= starWidth
-				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
-					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight, borderColor))
-				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s" text-anchor="middle" dominant-baseline="middle">★</text>`,
-					currentX+starWidth/2, buttonY, textColor))
-				currentX -= buttonGap
-			}
-
-			currentX -= dislikeWidth
-			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
-				currentX, buttonY-buttonHeight/2, dislikeWidth, buttonHeight, borderColor))
-			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
-				currentX+dislikeWidth/2, buttonY, textColor, comment.Dislikes))
-			currentX -= buttonGap
-
-			currentX -= likeWidth
 			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 				currentX, buttonY-buttonHeight/2, likeWidth, buttonHeight, borderColor))
 			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">+ %d</text>`,
 				currentX+likeWidth/2, buttonY, textColor, comment.Likes))
+			currentX += likeWidth + buttonGap
+
+			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+				currentX, buttonY-buttonHeight/2, dislikeWidth, buttonHeight, borderColor))
+			parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="%s" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
+				currentX+dislikeWidth/2, buttonY, textColor, comment.Dislikes))
+			currentX += dislikeWidth + buttonGap
+
+			if comment.IsOwnerLiked {
+				parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
+					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight, borderColor))
+				parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="%s" text-anchor="middle" dominant-baseline="middle">★</text>`,
+					currentX+starWidth/2, buttonY, textColor))
+			}
 		}
 	}
 
