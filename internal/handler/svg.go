@@ -61,15 +61,14 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 		comments = append(comments, cm)
 	}
 
-	theme := c.Query("theme")
-	svgContent := generateCommentBox(username, comments, theme)
+	svgContent := generateCommentBox(username, comments)
 
 	c.Writer.Header().Set("Content-Type", "image/svg+xml")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.String(http.StatusOK, svgContent)
 }
 
-func generateCommentBox(userName string, comments []model.SvgCommentModel, theme string) string {
+func generateCommentBox(userName string, comments []model.SvgCommentModel) string {
 	const (
 		width                  = 800
 		padding                = 24
@@ -109,32 +108,13 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, theme
 	var parts []string
 
 	parts = append(parts, fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, totalHeight))
-
-	var styleContent string
-	if theme != "" {
-		var bgColor, textColor, borderColor, grayColor string
-		switch theme {
-		case "black":
-			bgColor, textColor, borderColor, grayColor = "black", "white", "#333333", "#999999"
-		case "white":
-			bgColor, textColor, borderColor, grayColor = "white", "black", "#e0e0e0", "#666666"
-		case "transparent":
-			bgColor, textColor, borderColor, grayColor = "transparent", "gray", "#e0e0e0", "#666666"
-		}
-		styleContent = fmt.Sprintf(`<style>
-		svg { --bg-color: %s; --text-color: %s; --border-color: %s; --gray-color: %s; }
-		text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-	</style>`, bgColor, textColor, borderColor, grayColor)
-	} else {
-		styleContent = `<style>
+	parts = append(parts, `<style>
 		svg { --bg-color: white; --text-color: black; --border-color: #e0e0e0; --gray-color: #666666; }
 		@media (prefers-color-scheme: dark) {
 			svg { --bg-color: black; --text-color: white; --border-color: #333333; --gray-color: #999999; }
 		}
 		text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-	</style>`
-	}
-	parts = append(parts, styleContent)
+	</style>`)
 
 	parts = append(parts, fmt.Sprintf(`<rect width="%d" height="%d" fill="var(--bg-color)"/>`, width, totalHeight))
 
