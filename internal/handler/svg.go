@@ -93,7 +93,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		sectionTitleTopGap     = 24
 		sectionTitleBottomGap  = 24
 		titleDescent           = 3
-		commentBoxHeight       = 92
+		commentBoxHeight       = 102
 		commentBoxGap          = 16
 		commentBoxPadding      = 12
 		buttonHeight           = 24
