@@ -132,8 +132,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 
 	parts = append(parts, fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, totalHeight))
 	parts = append(parts, `<style>
-		@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
-		text { font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif; }
+		text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 	</style>`)
 
 	parts = append(parts, fmt.Sprintf(`<rect width="%d" height="%d" fill="%s"/>`, width, totalHeight, boxColor))
@@ -176,7 +175,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 			contentHeight := 21
 			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
 				textX, contentY, textWidth, contentHeight))
-			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Pretendard Variable', Pretendard, sans-serif; height: 100%;">`)
+			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
 			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
