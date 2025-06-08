@@ -108,7 +108,6 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 	var builder strings.Builder
 
 	builder.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, totalHeight))
-	builder.WriteByte('\n')
 	builder.WriteString(`<style>
 		svg { --bg-color: white; --text-color: black; --border-color: #e0e0e0; --gray-color: #666666; }
 		@media (prefers-color-scheme: dark) {
@@ -116,94 +115,73 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 		}
 		text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 	</style>`)
-	builder.WriteByte('\n')
 
 	builder.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="var(--bg-color)"/>`, width, totalHeight))
-	builder.WriteByte('\n')
 
 	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--text-color)">%s</text>`,
 		padding, headerTextY, headerFontSize, template.HTMLEscapeString(userName)))
-	builder.WriteByte('\n')
 
 	builder.WriteString(fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="var(--border-color)" stroke-width="1"/>`,
 		padding, headerLineY, width-padding, headerLineY))
-	builder.WriteByte('\n')
 
 	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--gray-color)" letter-spacing="0.5">COMMENTS</text>`,
 		padding, sectionTitleY, sectionTitleFontSize))
-	builder.WriteByte('\n')
 
 	if len(comments) == 0 {
 		emptyY := commentsStartY
 		builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 			padding, emptyY, width-padding*2, emptyBoxHeight))
-		builder.WriteByte('\n')
 
 		iconBaseline := emptyY + 15 + 18
 		builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="var(--gray-color)" text-anchor="middle">—</text>`,
 			width/2, iconBaseline))
-		builder.WriteByte('\n')
 
 		textBaseline := iconBaseline + 6 + 12 + 11
 		builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="var(--gray-color)" text-anchor="middle">No comments yet</text>`,
 			width/2, textBaseline))
-		builder.WriteByte('\n')
 	} else {
 		for i, comment := range comments {
 			commentY := commentsStartY + i*(commentBoxHeight+commentBoxGap)
 
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 				padding, commentY, width-padding*2, commentBoxHeight))
-			builder.WriteByte('\n')
 
 			textX := padding + 16
 			textWidth := width - padding*2 - 32
 			authorY := commentY + commentBoxPadding + 11
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="var(--text-color)">%s</text>`,
 				textX, authorY, template.HTMLEscapeString(comment.Author)))
-			builder.WriteByte('\n')
 
 			contentY := commentY + commentBoxPadding + 21 + 4
 			contentHeight := 21
 			builder.WriteString(fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
 				textX, contentY, textWidth, contentHeight))
-			builder.WriteByte('\n')
 			builder.WriteString(`<div xmlns="http://www.w3.org/1999/xhtml" style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
-			builder.WriteByte('\n')
 			builder.WriteString(fmt.Sprintf(`<div style="margin: 0; padding: 0; box-sizing: border-box; font-size: 14px; color: var(--text-color); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">%s</div>`,
 				template.HTMLEscapeString(comment.Content)))
-			builder.WriteByte('\n')
 			builder.WriteString(`</div>`)
-			builder.WriteByte('\n')
 			builder.WriteString(`</foreignObject>`)
-			builder.WriteByte('\n')
 
 			buttonY := contentY + 21 + 8 + buttonHeight/2
 			currentX := textX
 
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 				currentX, buttonY-buttonHeight/2, likeWidth, buttonHeight))
-			builder.WriteByte('\n')
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">+ %d</text>`,
 				currentX+likeWidth/2, buttonY, comment.Likes))
-			builder.WriteByte('\n')
 			currentX += likeWidth + buttonGap
 
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 				currentX, buttonY-buttonHeight/2, dislikeWidth, buttonHeight))
-			builder.WriteByte('\n')
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
 				currentX+dislikeWidth/2, buttonY, comment.Dislikes))
-			builder.WriteByte('\n')
 			currentX += dislikeWidth + buttonGap
 
 			if comment.IsOwnerLiked {
 				builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight))
-				builder.WriteByte('\n')
 				builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">★</text>`,
 					currentX+starWidth/2, buttonY))
-				builder.WriteByte('\n')
 			}
 		}
 	}
