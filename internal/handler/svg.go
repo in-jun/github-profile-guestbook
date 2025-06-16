@@ -175,8 +175,8 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 			contentHeight := 21
 			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
 				textX, contentY, textWidth, contentHeight))
-			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
-			parts = append(parts, fmt.Sprintf(`<div style="font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">%s</div>`,
+			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
+			parts = append(parts, fmt.Sprintf(`<div style="margin: 0; padding: 0; box-sizing: border-box; font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
 			parts = append(parts, `</foreignObject>`)
