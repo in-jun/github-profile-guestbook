@@ -7,7 +7,7 @@ Add a comment system to your GitHub profile README.
 ### 1. Add to your profile README
 
 ```markdown
-[![Comments](https://github-comment.injun.dev/api/user/YOUR_USERNAME/svg?theme=white)](https://github-comment.injun.dev/YOUR_USERNAME)
+[![Comments](https://github-comment.injun.dev/api/user/YOUR_USERNAME/svg)](https://github-comment.injun.dev/YOUR_USERNAME)
 ```
 
 Replace `YOUR_USERNAME` with your GitHub username.
@@ -20,35 +20,22 @@ Visit `https://github-comment.injun.dev/YOUR_USERNAME` and log in with GitHub OA
 
 Write a comment (max 200 characters) on any profile.
 
-## Themes
-
-Change the appearance by modifying the `theme` parameter:
-
-- `theme=white` - Light background (default)
-- `theme=black` - Dark background
-- `theme=transparent` - Transparent background
-
-Example:
-```markdown
-[![Comments](https://github-comment.injun.dev/api/user/in-jun/svg?theme=black)](https://github-comment.injun.dev/in-jun)
-```
-
 ## Features
 
+- **Automatic dark mode detection** - Adapts to your system theme via CSS `prefers-color-scheme`
 - Real-time comment system
 - Like/Dislike functionality
 - Owner can highlight favorite comments with a star
 - Minimal design with sharp edges and monochrome colors
-- Pretendard font
+- System native fonts for consistent rendering
 - Responsive layout
+- Optimized SVG generation with `strings.Builder`
 
-## Examples
+## Example
 
-| Theme | Preview |
-|-------|---------|
-| White | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=white)](https://github-comment.injun.dev/in-jun) |
-| Black | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=black)](https://github-comment.injun.dev/in-jun) |
-| Transparent | [![Example](https://github-comment.injun.dev/api/user/in-jun/svg?theme=transparent)](https://github-comment.injun.dev/in-jun) |
+[![Example](https://github-comment.injun.dev/api/user/in-jun/svg)](https://github-comment.injun.dev/in-jun)
+
+*The widget automatically adapts to light/dark mode based on your system settings.*
 
 ## Tech Stack
 
