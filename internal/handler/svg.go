@@ -152,13 +152,13 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
 			padding, emptyY, width-padding*2, emptyBoxHeight, borderColor))
 
-		iconY := emptyY + 40 - 9
+		iconBaseline := emptyY + 15 + 18
 		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="24" font-weight="700" fill="%s" text-anchor="middle">—</text>`,
-			width/2, iconY+18, grayColor))
+			width/2, iconBaseline, grayColor))
 
-		textY := iconY + 24 + 12 + 11
+		textBaseline := iconBaseline + 6 + 12 + 11
 		parts = append(parts, fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="%s" text-anchor="middle">No comments yet</text>`,
-			width/2, textY, grayColor))
+			width/2, textBaseline, grayColor))
 	} else {
 		for i, comment := range comments {
 			commentY := commentsStartY + i*(commentBoxHeight+commentBoxGap)
