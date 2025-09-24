@@ -93,7 +93,7 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 		sectionTitleTopGap     = 24
 		sectionTitleBottomGap  = 24
 		titleDescent           = 3
-		commentBoxHeight       = 102
+		commentBoxHeight       = 101
 		commentBoxGap          = 16
 		commentBoxPadding      = 12
 		buttonHeight           = 24
@@ -172,16 +172,16 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel, textC
 				textX, authorY, textColor, template.HTMLEscapeString(comment.Author)))
 
 			contentY := commentY + commentBoxPadding + 21 + 4
-			contentHeight := 21
+			contentHeight := 20
 			parts = append(parts, fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
 				textX, contentY, textWidth, contentHeight))
 			parts = append(parts, `<div xmlns="http://www.w3.org/1999/xhtml" style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
-			parts = append(parts, fmt.Sprintf(`<div style="margin: 0; padding: 0; box-sizing: border-box; font-size: 14px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">%s</div>`,
+			parts = append(parts, fmt.Sprintf(`<div style="margin: 0; padding: 0; box-sizing: border-box; font-size: 13px; color: %s; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">%s</div>`,
 				textColor, template.HTMLEscapeString(comment.Content)))
 			parts = append(parts, `</div>`)
 			parts = append(parts, `</foreignObject>`)
 
-			buttonY := contentY + 21 + 8 + buttonHeight/2
+			buttonY := contentY + 20 + 8 + buttonHeight/2
 			currentX := textX
 
 			parts = append(parts, fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="%s" stroke-width="1"/>`,
