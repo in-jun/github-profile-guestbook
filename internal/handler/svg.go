@@ -25,7 +25,10 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 	var exists bool
 	h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE github_login = $1)", username).Scan(&exists)
 	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "GitHub user not found"})
+		svgContent := generateLoginPromptSVG(username)
+		c.Writer.Header().Set("Content-Type", "image/svg+xml")
+		c.Writer.Header().Set("Cache-Control", "no-cache")
+		c.String(http.StatusOK, svgContent)
 		return
 	}
 
@@ -185,6 +188,49 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 			}
 		}
 	}
+
+	builder.WriteString("</svg>")
+	return builder.String()
+}
+
+func generateLoginPromptSVG(userName string) string {
+	const (
+		width       = 800
+		height      = 200
+		padding     = 24
+		iconSize    = 48
+		titleSize   = 20
+		messageSize = 14
+	)
+
+	var builder strings.Builder
+
+	builder.WriteString(fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, width, height))
+	builder.WriteString(`<style>
+		svg { --bg-color: white; --text-color: black; --border-color: #e0e0e0; --gray-color: #666666; }
+		@media (prefers-color-scheme: dark) {
+			svg { --bg-color: black; --text-color: white; --border-color: #333333; --gray-color: #999999; }
+		}
+		text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+	</style>`)
+
+	builder.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="var(--bg-color)"/>`, width, height))
+	builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
+		padding, padding, width-padding*2, height-padding*2))
+
+	centerY := height / 2
+	iconY := centerY - 30
+
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)" text-anchor="middle">👤</text>`,
+		width/2, iconY+iconSize/2, iconSize))
+
+	titleY := iconY + iconSize + 20
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--text-color)" text-anchor="middle">@%s</text>`,
+		width/2, titleY, titleSize, template.HTMLEscapeString(userName)))
+
+	messageY := titleY + 30
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)" text-anchor="middle">This profile hasn't been claimed yet</text>`,
+		width/2, messageY, messageSize))
 
 	builder.WriteString("</svg>")
 	return builder.String()
