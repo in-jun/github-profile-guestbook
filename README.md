@@ -22,14 +22,12 @@ Write a comment (max 200 characters) on any profile.
 
 ## Features
 
-- **Automatic dark mode detection** - Adapts to your system theme via CSS `prefers-color-scheme`
-- Real-time comment system
-- Like/Dislike functionality
-- Owner can highlight favorite comments with a star
-- Minimal design with sharp edges and monochrome colors
-- System native fonts for consistent rendering
-- Responsive layout
-- Optimized SVG generation with `strings.Builder`
+- **Automatic theme switching** - Adapts to light/dark mode automatically
+- Leave comments on any GitHub profile (200 characters max)
+- React with likes and dislikes
+- Highlight your favorite comments with a star
+- Clean, minimal design that fits any profile
+- Fast and lightweight
 
 ## Example
 
