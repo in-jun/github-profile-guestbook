@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Documentation
+*.md
+!README.md
+CLAUDE.md
+
+# Build artifacts
+*.exe
+*.out
+server
+tmp/
+
+# Go
+*.test
+*.prof
+coverage.out
+
+# Environment
+.env
+*.local
+
+# CI/CD (로컬에서만 제외)
+.github
+
+# Kubernetes
+k8s/
+*.yaml
+!go.yaml
