@@ -39,11 +39,11 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 		c.is_owner_liked,
 		COUNT(DISTINCT l.id)  AS likes,
 		COUNT(DISTINCT d.id)  AS dislikes
-	FROM comments c
+	FROM messages c
 	JOIN users a         ON a.id = c.author_id
 	JOIN users r         ON r.id = c.receiver_id
-	LEFT JOIN likes l    ON l.comment_id = c.id
-	LEFT JOIN dislikes d ON d.comment_id = c.id
+	LEFT JOIN likes l    ON l.message_id = c.id
+	LEFT JOIN dislikes d ON d.message_id = c.id
 	WHERE r.github_login = $1
 	GROUP BY c.id, a.github_login, c.content, c.is_owner_liked
 	ORDER BY

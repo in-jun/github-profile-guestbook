@@ -55,7 +55,7 @@ func (h *MessageHandler) Create(c *gin.Context) {
 
 	// Store raw content in DB, escape only when rendering (SVG, HTML)
 	_, err := h.db.Exec(
-		`INSERT INTO comments (receiver_id, author_id, content)
+		`INSERT INTO messages (receiver_id, author_id, content)
 		 VALUES ((SELECT id FROM users WHERE github_login = $1), $2, $3)`,
 		username, authorID, req.Content,
 	)
@@ -99,11 +99,11 @@ func (h *MessageHandler) List(c *gin.Context) {
 		COUNT(DISTINCT d.id)                        AS dislikes,
 		COALESCE(BOOL_OR(l.user_id = $2), FALSE)    AS is_liked,
 		COALESCE(BOOL_OR(d.user_id = $2), FALSE)    AS is_disliked
-	FROM comments c
+	FROM messages c
 	JOIN users a         ON a.id = c.author_id
 	JOIN users r         ON r.id = c.receiver_id
-	LEFT JOIN likes l    ON l.comment_id = c.id
-	LEFT JOIN dislikes d ON d.comment_id = c.id
+	LEFT JOIN likes l    ON l.message_id = c.id
+	LEFT JOIN dislikes d ON d.message_id = c.id
 	WHERE r.github_login = $1
 	GROUP BY c.id, a.github_login, a.id, c.content, c.is_owner_liked
 	ORDER BY
@@ -149,7 +149,7 @@ func (h *MessageHandler) Delete(c *gin.Context) {
 	}
 
 	result, err := h.db.Exec(
-		`DELETE FROM comments
+		`DELETE FROM messages
 		 WHERE receiver_id = (SELECT id FROM users WHERE github_login = $1)
 		   AND author_id = $2`,
 		username, authorID,

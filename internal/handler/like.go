@@ -46,7 +46,7 @@ func (h *LikeHandler) Like(c *gin.Context) {
 	}
 
 	var authorID int64
-	err := h.db.QueryRow("SELECT author_id FROM comments WHERE id = $1", messageID).Scan(&authorID)
+	err := h.db.QueryRow("SELECT author_id FROM messages WHERE id = $1", messageID).Scan(&authorID)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 		return
@@ -63,8 +63,8 @@ func (h *LikeHandler) Like(c *gin.Context) {
 
 	var alreadyLiked, alreadyDisliked bool
 	h.db.QueryRow(`SELECT
-		EXISTS (SELECT 1 FROM likes    WHERE comment_id = $1 AND user_id = $2) AS already_liked,
-		EXISTS (SELECT 1 FROM dislikes WHERE comment_id = $1 AND user_id = $2) AS already_disliked`,
+		EXISTS (SELECT 1 FROM likes    WHERE message_id = $1 AND user_id = $2) AS already_liked,
+		EXISTS (SELECT 1 FROM dislikes WHERE message_id = $1 AND user_id = $2) AS already_disliked`,
 		messageID, userID,
 	).Scan(&alreadyLiked, &alreadyDisliked)
 
@@ -77,7 +77,7 @@ func (h *LikeHandler) Like(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.db.Exec("INSERT INTO likes (comment_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
+	if _, err := h.db.Exec("INSERT INTO likes (message_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like message"})
 		return
 	}
@@ -96,13 +96,13 @@ func (h *LikeHandler) RemoveLike(c *gin.Context) {
 	}
 
 	var exists bool
-	h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1)", messageID).Scan(&exists)
+	h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM messages WHERE id = $1)", messageID).Scan(&exists)
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 		return
 	}
 
-	result, err := h.db.Exec("DELETE FROM likes WHERE comment_id = $1 AND user_id = $2", messageID, userID)
+	result, err := h.db.Exec("DELETE FROM likes WHERE message_id = $1 AND user_id = $2", messageID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove like"})
 		return
@@ -128,7 +128,7 @@ func (h *LikeHandler) Dislike(c *gin.Context) {
 	}
 
 	var authorID int64
-	err := h.db.QueryRow("SELECT author_id FROM comments WHERE id = $1", messageID).Scan(&authorID)
+	err := h.db.QueryRow("SELECT author_id FROM messages WHERE id = $1", messageID).Scan(&authorID)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 		return
@@ -145,8 +145,8 @@ func (h *LikeHandler) Dislike(c *gin.Context) {
 
 	var alreadyLiked, alreadyDisliked bool
 	h.db.QueryRow(`SELECT
-		EXISTS (SELECT 1 FROM likes    WHERE comment_id = $1 AND user_id = $2),
-		EXISTS (SELECT 1 FROM dislikes WHERE comment_id = $1 AND user_id = $2)`,
+		EXISTS (SELECT 1 FROM likes    WHERE message_id = $1 AND user_id = $2),
+		EXISTS (SELECT 1 FROM dislikes WHERE message_id = $1 AND user_id = $2)`,
 		messageID, userID,
 	).Scan(&alreadyLiked, &alreadyDisliked)
 
@@ -159,7 +159,7 @@ func (h *LikeHandler) Dislike(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.db.Exec("INSERT INTO dislikes (comment_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
+	if _, err := h.db.Exec("INSERT INTO dislikes (message_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to dislike message"})
 		return
 	}
@@ -178,13 +178,13 @@ func (h *LikeHandler) RemoveDislike(c *gin.Context) {
 	}
 
 	var exists bool
-	h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1)", messageID).Scan(&exists)
+	h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM messages WHERE id = $1)", messageID).Scan(&exists)
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 		return
 	}
 
-	result, err := h.db.Exec("DELETE FROM dislikes WHERE comment_id = $1 AND user_id = $2", messageID, userID)
+	result, err := h.db.Exec("DELETE FROM dislikes WHERE message_id = $1 AND user_id = $2", messageID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove dislike"})
 		return
@@ -210,7 +210,7 @@ func (h *LikeHandler) OwnerLike(c *gin.Context) {
 	}
 
 	result, err := h.db.Exec(
-		"UPDATE comments SET is_owner_liked = TRUE WHERE id = $1 AND receiver_id = $2 AND is_owner_liked = FALSE",
+		"UPDATE messages SET is_owner_liked = TRUE WHERE id = $1 AND receiver_id = $2 AND is_owner_liked = FALSE",
 		messageID, userID,
 	)
 	if err != nil {
@@ -221,14 +221,14 @@ func (h *LikeHandler) OwnerLike(c *gin.Context) {
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
 		var exists bool
-		h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1)", messageID).Scan(&exists)
+		h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM messages WHERE id = $1)", messageID).Scan(&exists)
 		if !exists {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 			return
 		}
 
 		var isOwner bool
-		h.db.QueryRow("SELECT receiver_id = $2 FROM comments WHERE id = $1", messageID, userID).Scan(&isOwner)
+		h.db.QueryRow("SELECT receiver_id = $2 FROM messages WHERE id = $1", messageID, userID).Scan(&isOwner)
 		if !isOwner {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "You can only like your own message"})
 			return
@@ -252,7 +252,7 @@ func (h *LikeHandler) OwnerRemoveLike(c *gin.Context) {
 	}
 
 	result, err := h.db.Exec(
-		"UPDATE comments SET is_owner_liked = FALSE WHERE id = $1 AND receiver_id = $2 AND is_owner_liked = TRUE",
+		"UPDATE messages SET is_owner_liked = FALSE WHERE id = $1 AND receiver_id = $2 AND is_owner_liked = TRUE",
 		messageID, userID,
 	)
 	if err != nil {
@@ -263,14 +263,14 @@ func (h *LikeHandler) OwnerRemoveLike(c *gin.Context) {
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
 		var exists bool
-		h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1)", messageID).Scan(&exists)
+		h.db.QueryRow("SELECT EXISTS(SELECT 1 FROM messages WHERE id = $1)", messageID).Scan(&exists)
 		if !exists {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 			return
 		}
 
 		var isOwner bool
-		h.db.QueryRow("SELECT receiver_id = $2 FROM comments WHERE id = $1", messageID, userID).Scan(&isOwner)
+		h.db.QueryRow("SELECT receiver_id = $2 FROM messages WHERE id = $1", messageID, userID).Scan(&isOwner)
 		if !isOwner {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "You can only remove like from your own message"})
 			return
