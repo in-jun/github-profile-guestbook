@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/in-jun/github-profile-comments/internal/model"
+	"github.com/in-jun/github-profile-guestbook/internal/model"
 )
 
 type SVGHandler struct {
@@ -50,28 +50,28 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 		c.is_owner_liked DESC,
 		(COUNT(DISTINCT l.id) - COUNT(DISTINCT d.id)) DESC`, username)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get comments"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get messages"})
 		return
 	}
 	defer rows.Close()
 
-	comments := make([]model.SvgCommentModel, 0)
+	messages := make([]model.SvgMessageModel, 0)
 	for rows.Next() {
-		var cm model.SvgCommentModel
+		var cm model.SvgMessageModel
 		if err := rows.Scan(&cm.ID, &cm.Author, &cm.Content, &cm.IsOwnerLiked, &cm.Likes, &cm.Dislikes); err != nil {
 			continue
 		}
-		comments = append(comments, cm)
+		messages = append(messages, cm)
 	}
 
-	svgContent := generateCommentBox(username, comments)
+	svgContent := generateMessageBox(username, messages)
 
 	c.Writer.Header().Set("Content-Type", "image/svg+xml")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.String(http.StatusOK, svgContent)
 }
 
-func generateCommentBox(userName string, comments []model.SvgCommentModel) string {
+func generateMessageBox(userName string, messages []model.SvgMessageModel) string {
 	const (
 		width                  = 800
 		padding                = 24
@@ -83,9 +83,9 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 		sectionTitleTopGap     = 24
 		sectionTitleBottomGap  = 24
 		titleDescent           = 3
-		commentBoxHeight       = 102
-		commentBoxGap          = 16
-		commentBoxPadding      = 12
+		messageBoxHeight       = 102
+		messageBoxGap          = 16
+		messageBoxPadding      = 12
 		buttonHeight           = 24
 		buttonGap              = 8
 		likeWidth              = 50
@@ -98,14 +98,14 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 	headerTextY := padding + headerBaseline
 	headerLineY := headerTextY + headerBottomGap
 	sectionTitleY := headerLineY + sectionTitleTopGap + sectionTitleBaseline
-	commentsStartY := sectionTitleY + titleDescent + sectionTitleBottomGap
+	messagesStartY := sectionTitleY + titleDescent + sectionTitleBottomGap
 
 	var totalHeight int
-	if len(comments) == 0 {
-		totalHeight = commentsStartY + emptyBoxHeight + bottomPadding
+	if len(messages) == 0 {
+		totalHeight = messagesStartY + emptyBoxHeight + bottomPadding
 	} else {
-		commentsHeight := len(comments)*commentBoxHeight + (len(comments)-1)*commentBoxGap
-		totalHeight = commentsStartY + commentsHeight + bottomPadding
+		messagesHeight := len(messages)*messageBoxHeight + (len(messages)-1)*messageBoxGap
+		totalHeight = messagesStartY + messagesHeight + bottomPadding
 	}
 
 	var builder strings.Builder
@@ -127,11 +127,11 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 	builder.WriteString(fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="var(--border-color)" stroke-width="1"/>`,
 		padding, headerLineY, width-padding, headerLineY))
 
-	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--gray-color)" letter-spacing="0.5">COMMENTS</text>`,
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--gray-color)" letter-spacing="0.5">GUESTBOOK</text>`,
 		padding, sectionTitleY, sectionTitleFontSize))
 
-	if len(comments) == 0 {
-		emptyY := commentsStartY
+	if len(messages) == 0 {
+		emptyY := messagesStartY
 		builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 			padding, emptyY, width-padding*2, emptyBoxHeight))
 
@@ -140,28 +140,28 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 			width/2, iconBaseline))
 
 		textBaseline := iconBaseline + 6 + 12 + 11
-		builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="var(--gray-color)" text-anchor="middle">No comments yet</text>`,
+		builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="14" fill="var(--gray-color)" text-anchor="middle">No messages yet</text>`,
 			width/2, textBaseline))
 	} else {
-		for i, comment := range comments {
-			commentY := commentsStartY + i*(commentBoxHeight+commentBoxGap)
+		for i, message := range messages {
+			messageY := messagesStartY + i*(messageBoxHeight+messageBoxGap)
 
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
-				padding, commentY, width-padding*2, commentBoxHeight))
+				padding, messageY, width-padding*2, messageBoxHeight))
 
 			textX := padding + 16
 			textWidth := width - padding*2 - 32
-			authorY := commentY + commentBoxPadding + 11
+			authorY := messageY + messageBoxPadding + 11
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="14" font-weight="700" fill="var(--text-color)">%s</text>`,
-				textX, authorY, template.HTMLEscapeString(comment.Author)))
+				textX, authorY, template.HTMLEscapeString(message.Author)))
 
-			contentY := commentY + commentBoxPadding + 21 + 4
+			contentY := messageY + messageBoxPadding + 21 + 4
 			contentHeight := 21
 			builder.WriteString(fmt.Sprintf(`<foreignObject x="%d" y="%d" width="%d" height="%d">`,
 				textX, contentY, textWidth, contentHeight))
 			builder.WriteString(`<div xmlns="http://www.w3.org/1999/xhtml" style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%;">`)
 			builder.WriteString(fmt.Sprintf(`<div style="margin: 0; padding: 0; box-sizing: border-box; font-size: 14px; color: var(--text-color); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">%s</div>`,
-				template.HTMLEscapeString(comment.Content)))
+				template.HTMLEscapeString(message.Content)))
 			builder.WriteString(`</div>`)
 			builder.WriteString(`</foreignObject>`)
 
@@ -171,16 +171,16 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 				currentX, buttonY-buttonHeight/2, likeWidth, buttonHeight))
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">+ %d</text>`,
-				currentX+likeWidth/2, buttonY, comment.Likes))
+				currentX+likeWidth/2, buttonY, message.Likes))
 			currentX += likeWidth + buttonGap
 
 			builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 				currentX, buttonY-buttonHeight/2, dislikeWidth, buttonHeight))
 			builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" font-weight="500" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">- %d</text>`,
-				currentX+dislikeWidth/2, buttonY, comment.Dislikes))
+				currentX+dislikeWidth/2, buttonY, message.Dislikes))
 			currentX += dislikeWidth + buttonGap
 
-			if comment.IsOwnerLiked {
+			if message.IsOwnerLiked {
 				builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
 					currentX, buttonY-buttonHeight/2, starWidth, buttonHeight))
 				builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="12" fill="var(--text-color)" text-anchor="middle" dominant-baseline="middle">★</text>`,

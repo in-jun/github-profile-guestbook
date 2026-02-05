@@ -1,4 +1,4 @@
-module github.com/in-jun/github-profile-comments
+module github.com/in-jun/github-profile-guestbook
 
 go 1.23.0
 

@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/in-jun/github-profile-comments/internal/auth"
-	"github.com/in-jun/github-profile-comments/internal/config"
-	"github.com/in-jun/github-profile-comments/internal/db"
-	"github.com/in-jun/github-profile-comments/internal/handler"
-	"github.com/in-jun/github-profile-comments/internal/middleware"
-	"github.com/in-jun/github-profile-comments/web"
+	"github.com/in-jun/github-profile-guestbook/internal/auth"
+	"github.com/in-jun/github-profile-guestbook/internal/config"
+	"github.com/in-jun/github-profile-guestbook/internal/db"
+	"github.com/in-jun/github-profile-guestbook/internal/handler"
+	"github.com/in-jun/github-profile-guestbook/internal/middleware"
+	"github.com/in-jun/github-profile-guestbook/web"
 )
 
 func main() {
@@ -52,7 +52,7 @@ func main() {
 		RefreshTokenTTL: cfg.RefreshTokenTTL,
 	})
 	userHandler := handler.NewUserHandler(database)
-	commentHandler := handler.NewCommentHandler(database)
+	messageHandler := handler.NewMessageHandler(database)
 	likeHandler := handler.NewLikeHandler(database)
 	svgHandler := handler.NewSVGHandler(database)
 
@@ -66,9 +66,9 @@ func main() {
 
 		user := api.Group("/user")
 		{
-			user.POST("/:username/comments", postLimiter.Handler(), commentHandler.Create)
-			user.GET("/:username/comments", getLimiter.Handler(), commentHandler.List)
-			user.DELETE("/:username/comments", postLimiter.Handler(), commentHandler.Delete)
+			user.POST("/:username/messages", postLimiter.Handler(), messageHandler.Create)
+			user.GET("/:username/messages", getLimiter.Handler(), messageHandler.List)
+			user.DELETE("/:username/messages", postLimiter.Handler(), messageHandler.Delete)
 			user.GET("/:username/svg", svgHandler.GetSVG)
 		}
 
@@ -81,12 +81,12 @@ func main() {
 
 		like := api.Group("/like")
 		{
-			like.POST("/like/:commentID", postLimiter.Handler(), likeHandler.Like)
-			like.POST("/remove-like/:commentID", postLimiter.Handler(), likeHandler.RemoveLike)
-			like.POST("/dislike/:commentID", postLimiter.Handler(), likeHandler.Dislike)
-			like.POST("/remove-dislike/:commentID", postLimiter.Handler(), likeHandler.RemoveDislike)
-			like.POST("/owner-like/:commentID", postLimiter.Handler(), likeHandler.OwnerLike)
-			like.POST("/owner-remove-like/:commentID", postLimiter.Handler(), likeHandler.OwnerRemoveLike)
+			like.POST("/like/:messageID", postLimiter.Handler(), likeHandler.Like)
+			like.POST("/remove-like/:messageID", postLimiter.Handler(), likeHandler.RemoveLike)
+			like.POST("/dislike/:messageID", postLimiter.Handler(), likeHandler.Dislike)
+			like.POST("/remove-dislike/:messageID", postLimiter.Handler(), likeHandler.RemoveDislike)
+			like.POST("/owner-like/:messageID", postLimiter.Handler(), likeHandler.OwnerLike)
+			like.POST("/owner-remove-like/:messageID", postLimiter.Handler(), likeHandler.OwnerRemoveLike)
 		}
 	}
 

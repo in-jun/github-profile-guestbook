@@ -1,13 +1,13 @@
-# GitHub Profile Comments
+# GitHub Profile Guestbook
 
-Add a comment system to your GitHub profile README.
+Add an interactive guestbook to your GitHub profile README.
 
 ## Usage
 
 ### 1. Add to your profile README
 
 ```markdown
-[![Comments](https://github-comment.injun.dev/api/user/YOUR_USERNAME/svg)](https://github-comment.injun.dev/YOUR_USERNAME)
+[![Guestbook](https://github-comment.injun.dev/api/user/YOUR_USERNAME/svg)](https://github-comment.injun.dev/YOUR_USERNAME)
 ```
 
 Replace `YOUR_USERNAME` with your GitHub username.
@@ -16,16 +16,16 @@ Replace `YOUR_USERNAME` with your GitHub username.
 
 Visit `https://github-comment.injun.dev/YOUR_USERNAME` and log in with GitHub OAuth.
 
-### 3. Leave a comment
+### 3. Leave a message
 
-Write a comment (max 200 characters) on any profile.
+Write a message (max 200 characters) on any profile.
 
 ## Features
 
 - **Automatic theme switching** - Adapts to light/dark mode automatically
-- Leave comments on any GitHub profile (200 characters max)
+- Leave messages on any GitHub profile (200 characters max)
 - React with likes and dislikes
-- Highlight your favorite comments with a star
+- Highlight your favorite messages with a star
 - Clean, minimal design that fits any profile
 - Fast and lightweight
 

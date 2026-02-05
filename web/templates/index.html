@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comments</title>
+    <title>Guestbook</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
     <style>
         * {
@@ -89,7 +89,7 @@
             margin-bottom: 2rem;
         }
 
-        .comments-section {
+        .messages-section {
             margin-top: 0;
         }
 
@@ -102,7 +102,7 @@
             letter-spacing: 0.05em;
         }
 
-        .comment {
+        .message {
             margin-bottom: 1rem;
             padding: 0.75rem 1rem;
             border: 1px solid var(--border);
@@ -113,11 +113,11 @@
             transition: border-color 0.2s;
         }
 
-        .comment:hover {
+        .message:hover {
             border-color: var(--black);
         }
 
-        .comment-content {
+        .message-content {
             width: 100%;
         }
 
@@ -150,7 +150,7 @@
             border-color: var(--black);
         }
 
-        #commentInput {
+        #messageInput {
             padding: 0.75rem 1rem;
             border: 1px solid var(--black);
             width: 100%;
@@ -161,12 +161,12 @@
             line-height: 1.5;
         }
 
-        #commentInput:focus {
+        #messageInput:focus {
             outline: none;
             border-color: var(--black);
         }
 
-        #commentInput::placeholder {
+        #messageInput::placeholder {
             color: var(--gray);
         }
 
@@ -185,19 +185,19 @@
             white-space: pre-wrap;
         }
 
-        #commentsContainer {
+        #messagesContainer {
             min-height: 200px;
         }
 
-        .comment-header {
+        .message-header {
             margin-bottom: 0.5rem;
         }
 
-        .comment-body {
+        .message-body {
             margin-bottom: 0;
         }
 
-        .comments-wrapper {
+        .messages-wrapper {
             margin-bottom: 0;
         }
 
@@ -242,7 +242,7 @@
                 flex: 1;
             }
 
-            .comment {
+            .message {
                 flex-direction: column;
                 gap: 0.75rem;
             }
@@ -286,15 +286,15 @@
         </div>
 
         <div class="input-section">
-            <form id="commentForm" style="display: none;">
-                <input type="text" id="commentInput" placeholder="Write a comment (max 200 characters)" maxlength="200">
+            <form id="messageForm" style="display: none;">
+                <input type="text" id="messageInput" placeholder="Write a message (max 200 characters)" maxlength="200">
             </form>
         </div>
 
-        <div class="comments-section">
-            <div class="section-title">COMMENTS</div>
-            <div class="comments-wrapper">
-                <div id="commentsContainer"></div>
+        <div class="messages-section">
+            <div class="section-title">GUESTBOOK</div>
+            <div class="messages-wrapper">
+                <div id="messagesContainer"></div>
             </div>
         </div>
     </div>
@@ -305,15 +305,15 @@
         const authStatus = document.getElementById("authStatus");
         const authButton = document.getElementById("authButton");
         const logoutButton = document.getElementById("logoutButton");
-        const commentForm = document.getElementById("commentForm");
-        const commentsContainer = document.getElementById("commentsContainer");
-        const commentInput = document.getElementById("commentInput");
+        const messageForm = document.getElementById("messageForm");
+        const messagesContainer = document.getElementById("messagesContainer");
+        const messageInput = document.getElementById("messageInput");
         let loggedInUser = null;
 
         function updateUI(loggedIn) {
             authButton.style.display = loggedIn ? "none" : "block";
             logoutButton.style.display = loggedIn ? "block" : "none";
-            commentForm.style.display = loggedIn ? "block" : "none";
+            messageForm.style.display = loggedIn ? "block" : "none";
         }
 
         function checkLoginStatus() {
@@ -328,7 +328,7 @@
                         authStatus.textContent = "Join the conversation";
                         updateUI(false);
                     }
-                    getComments();
+                    getMessages();
                 })
                 .catch(error => console.error('Error:', error));
         }
@@ -340,15 +340,15 @@
                 alert("Error: " + data.error);
                 return null;
             }
-            getComments();
+            getMessages();
             return data;
         }
 
-        function getComments() {
-            fetch(`/api/user/${username}/comments`)
+        function getMessages() {
+            fetch(`/api/user/${username}/messages`)
                 .then(response => response.json())
                 .then(data => {
-                    commentsContainer.textContent = "";
+                    messagesContainer.textContent = "";
 
                     if (data.error) {
                         const errorDiv = document.createElement('div');
@@ -357,7 +357,7 @@
                             <div class="empty-state-icon">!</div>
                             <div class="empty-state-text">${data.error}</div>
                         `;
-                        commentsContainer.appendChild(errorDiv);
+                        messagesContainer.appendChild(errorDiv);
                         return;
                     }
 
@@ -366,31 +366,31 @@
                         emptyDiv.className = 'empty-state';
                         emptyDiv.innerHTML = `
                             <div class="empty-state-icon">—</div>
-                            <div class="empty-state-text">No comments yet</div>
+                            <div class="empty-state-text">No messages yet</div>
                         `;
-                        commentsContainer.appendChild(emptyDiv);
+                        messagesContainer.appendChild(emptyDiv);
                         return;
                     }
 
-                    data.forEach(comment => {
-                        const commentBox = document.createElement('div');
-                        commentBox.className = 'comment';
+                    data.forEach(message => {
+                        const messageBox = document.createElement('div');
+                        messageBox.className = 'message';
 
                         const contentDiv = document.createElement('div');
-                        contentDiv.className = 'comment-content';
+                        contentDiv.className = 'message-content';
 
                         const header = document.createElement('div');
-                        header.className = 'comment-header';
+                        header.className = 'message-header';
                         const authorSpan = document.createElement('span');
                         authorSpan.className = 'author';
-                        authorSpan.textContent = comment.author;
+                        authorSpan.textContent = message.author;
                         header.appendChild(authorSpan);
 
                         const body = document.createElement('div');
-                        body.className = 'comment-body';
+                        body.className = 'message-body';
                         const contentSpan = document.createElement('span');
                         contentSpan.className = 'content';
-                        contentSpan.textContent = comment.content;
+                        contentSpan.textContent = message.content;
                         body.appendChild(contentSpan);
 
                         contentDiv.appendChild(header);
@@ -399,67 +399,67 @@
                         const buttonBox = document.createElement('div');
                         buttonBox.className = 'buttonBox';
 
-                        const canInteract = loggedInUser !== null && loggedInUser !== comment.author;
+                        const canInteract = loggedInUser !== null && loggedInUser !== message.author;
                         const isPageOwner = loggedInUser === username;
-                        const isAuthor = loggedInUser === comment.author;
+                        const isAuthor = loggedInUser === message.author;
 
                         if (canInteract) {
                             const likeBtn = document.createElement('button');
                             likeBtn.className = 'actionButton';
-                            likeBtn.textContent = `+ ${comment.likes}`;
+                            likeBtn.textContent = `+ ${message.likes}`;
                             likeBtn.addEventListener('click', async () => {
                                 likeBtn.disabled = true;
-                                if (comment.is_liked) {
-                                    await postAction(`/api/like/remove-like/${comment.id}`);
+                                if (message.is_liked) {
+                                    await postAction(`/api/like/remove-like/${message.id}`);
                                 } else {
-                                    if (comment.is_disliked) await postAction(`/api/like/remove-dislike/${comment.id}`);
-                                    await postAction(`/api/like/like/${comment.id}`);
+                                    if (message.is_disliked) await postAction(`/api/like/remove-dislike/${message.id}`);
+                                    await postAction(`/api/like/like/${message.id}`);
                                 }
                                 likeBtn.disabled = false;
                             });
                             buttonBox.appendChild(likeBtn);
                         } else {
                             const span = document.createElement('span');
-                            span.textContent = `+ ${comment.likes}`;
+                            span.textContent = `+ ${message.likes}`;
                             buttonBox.appendChild(span);
                         }
 
                         if (canInteract) {
                             const dislikeBtn = document.createElement('button');
                             dislikeBtn.className = 'actionButton';
-                            dislikeBtn.textContent = `- ${comment.dislikes}`;
+                            dislikeBtn.textContent = `- ${message.dislikes}`;
                             dislikeBtn.addEventListener('click', async () => {
                                 dislikeBtn.disabled = true;
-                                if (comment.is_disliked) {
-                                    await postAction(`/api/like/remove-dislike/${comment.id}`);
+                                if (message.is_disliked) {
+                                    await postAction(`/api/like/remove-dislike/${message.id}`);
                                 } else {
-                                    if (comment.is_liked) await postAction(`/api/like/remove-like/${comment.id}`);
-                                    await postAction(`/api/like/dislike/${comment.id}`);
+                                    if (message.is_liked) await postAction(`/api/like/remove-like/${message.id}`);
+                                    await postAction(`/api/like/dislike/${message.id}`);
                                 }
                                 dislikeBtn.disabled = false;
                             });
                             buttonBox.appendChild(dislikeBtn);
                         } else {
                             const span = document.createElement('span');
-                            span.textContent = `- ${comment.dislikes}`;
+                            span.textContent = `- ${message.dislikes}`;
                             buttonBox.appendChild(span);
                         }
 
                         if (isPageOwner) {
                             const ownerBtn = document.createElement('button');
                             ownerBtn.className = 'actionButton';
-                            ownerBtn.textContent = comment.is_owner_liked ? '★' : '☆';
+                            ownerBtn.textContent = message.is_owner_liked ? '★' : '☆';
                             ownerBtn.addEventListener('click', async () => {
                                 ownerBtn.disabled = true;
-                                if (comment.is_owner_liked) {
-                                    await postAction(`/api/like/owner-remove-like/${comment.id}`);
+                                if (message.is_owner_liked) {
+                                    await postAction(`/api/like/owner-remove-like/${message.id}`);
                                 } else {
-                                    await postAction(`/api/like/owner-like/${comment.id}`);
+                                    await postAction(`/api/like/owner-like/${message.id}`);
                                 }
                                 ownerBtn.disabled = false;
                             });
                             buttonBox.appendChild(ownerBtn);
-                        } else if (comment.is_owner_liked) {
+                        } else if (message.is_owner_liked) {
                             const span = document.createElement('span');
                             span.textContent = '★';
                             buttonBox.appendChild(span);
@@ -471,32 +471,32 @@
                             deleteBtn.textContent = 'Delete';
                             deleteBtn.addEventListener('click', async () => {
                                 deleteBtn.disabled = true;
-                                const response = await fetch(`/api/user/${username}/comments`, { method: 'DELETE' });
+                                const response = await fetch(`/api/user/${username}/messages`, { method: 'DELETE' });
                                 const data = await response.json();
                                 if (data.message) alert(data.message);
-                                getComments();
+                                getMessages();
                             });
                             buttonBox.appendChild(deleteBtn);
                         }
 
-                        commentBox.appendChild(contentDiv);
-                        commentBox.appendChild(buttonBox);
-                        commentsContainer.appendChild(commentBox);
+                        messageBox.appendChild(contentDiv);
+                        messageBox.appendChild(buttonBox);
+                        messagesContainer.appendChild(messageBox);
                     });
                 })
                 .catch(error => console.error('Error:', error));
         }
 
-        async function createComment() {
-            const content = commentInput.value.trim();
+        async function createMessage() {
+            const content = messageInput.value.trim();
             if (!content) return;
 
             if (content.length > 200) {
-                alert("Error: Comment should be maximum 200 characters.");
+                alert("Error: Message should be maximum 200 characters.");
                 return;
             }
 
-            const response = await fetch(`/api/user/${username}/comments`, {
+            const response = await fetch(`/api/user/${username}/messages`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content })
@@ -505,17 +505,17 @@
             if (data.error) {
                 alert("Error: " + data.error);
             } else {
-                commentInput.value = "";
-                getComments();
+                messageInput.value = "";
+                getMessages();
             }
         }
 
         checkLoginStatus();
 
-        commentInput.addEventListener("keypress", function (event) {
+        messageInput.addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                createComment();
+                createMessage();
             }
         });
 

@@ -25,3 +25,8 @@
 
 # Environment files
 .env
+github-profile-comments
+server
+tmp/
+
+CLAUDE.md

@@ -1,6 +1,6 @@
 package model
 
-type CommentResponse struct {
+type MessageResponse struct {
 	ID           int64  `json:"id"`
 	Author       string `json:"author"`
 	Content      string `json:"content"`
@@ -11,7 +11,7 @@ type CommentResponse struct {
 	Dislikes     int    `json:"dislikes"`
 }
 
-type SvgCommentModel struct {
+type SvgMessageModel struct {
 	ID           int64
 	Author       string
 	Content      string

@@ -7,21 +7,21 @@ import (
 	"regexp"
 
 	"github.com/gin-gonic/gin"
-	"github.com/in-jun/github-profile-comments/internal/model"
+	"github.com/in-jun/github-profile-guestbook/internal/model"
 	"github.com/lib/pq"
 )
 
 var zalgoPattern = regexp.MustCompile(`[\p{Mn}\p{Me}\p{Mc}]`)
 
-type CommentHandler struct {
+type MessageHandler struct {
 	db *sql.DB
 }
 
-func NewCommentHandler(db *sql.DB) *CommentHandler {
-	return &CommentHandler{db: db}
+func NewMessageHandler(db *sql.DB) *MessageHandler {
+	return &MessageHandler{db: db}
 }
 
-func (h *CommentHandler) Create(c *gin.Context) {
+func (h *MessageHandler) Create(c *gin.Context) {
 	username := c.Param("username")
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -61,19 +61,19 @@ func (h *CommentHandler) Create(c *gin.Context) {
 	)
 	if err != nil {
 		if isUniqueViolation(err) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "user already has a comment"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "user already has a message"})
 		} else if isNullViolation(err) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "GitHub user not found"})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create comment"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create message"})
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Comment created"})
+	c.JSON(http.StatusOK, gin.H{"message": "Message created"})
 }
 
-func (h *CommentHandler) List(c *gin.Context) {
+func (h *MessageHandler) List(c *gin.Context) {
 	username := c.Param("username")
 
 	var exists bool
@@ -113,25 +113,25 @@ func (h *CommentHandler) List(c *gin.Context) {
 
 	rows, err := h.db.Query(query, username, currentUserID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get comments"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get messages"})
 		return
 	}
 	defer rows.Close()
 
-	comments := make([]model.CommentResponse, 0)
+	messages := make([]model.MessageResponse, 0)
 	for rows.Next() {
-		var cr model.CommentResponse
+		var mr model.MessageResponse
 		var authorID int64
-		if err := rows.Scan(&cr.ID, &cr.Author, &authorID, &cr.Content, &cr.IsOwnerLiked, &cr.Likes, &cr.Dislikes, &cr.IsLiked, &cr.IsDisliked); err != nil {
+		if err := rows.Scan(&mr.ID, &mr.Author, &authorID, &mr.Content, &mr.IsOwnerLiked, &mr.Likes, &mr.Dislikes, &mr.IsLiked, &mr.IsDisliked); err != nil {
 			continue
 		}
-		comments = append(comments, cr)
+		messages = append(messages, mr)
 	}
 
-	c.JSON(http.StatusOK, comments)
+	c.JSON(http.StatusOK, messages)
 }
 
-func (h *CommentHandler) Delete(c *gin.Context) {
+func (h *MessageHandler) Delete(c *gin.Context) {
 	username := c.Param("username")
 
 	userID, exists := c.Get("user_id")
@@ -155,17 +155,17 @@ func (h *CommentHandler) Delete(c *gin.Context) {
 		username, authorID,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete comment"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete message"})
 		return
 	}
 
 	rows, _ := result.RowsAffected()
 	if rows == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Comment not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Comment deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "Message deleted"})
 }
 
 func isUniqueViolation(err error) bool {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/in-jun/github-profile-comments/internal/auth"
+	"github.com/in-jun/github-profile-guestbook/internal/auth"
 	"golang.org/x/oauth2"
 	ghOAuth "golang.org/x/oauth2/github"
 )
