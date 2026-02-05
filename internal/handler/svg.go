@@ -195,12 +195,15 @@ func generateCommentBox(userName string, comments []model.SvgCommentModel) strin
 
 func generateLoginPromptSVG(userName string) string {
 	const (
-		width       = 800
-		height      = 200
-		padding     = 24
-		iconSize    = 48
-		titleSize   = 20
-		messageSize = 14
+		width           = 800
+		height          = 160
+		padding         = 24
+		usernameFontSize = 24
+		usernameBaseline = 18
+		messageFontSize  = 14
+		messageBaseline  = 11
+		lineGap          = 16
+		textGap          = 24
 	)
 
 	var builder strings.Builder
@@ -215,22 +218,22 @@ func generateLoginPromptSVG(userName string) string {
 	</style>`)
 
 	builder.WriteString(fmt.Sprintf(`<rect width="%d" height="%d" fill="var(--bg-color)"/>`, width, height))
-	builder.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="none" stroke="var(--border-color)" stroke-width="1"/>`,
-		padding, padding, width-padding*2, height-padding*2))
 
-	centerY := height / 2
-	iconY := centerY - 30
+	usernameY := padding + usernameBaseline
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--text-color)">%s</text>`,
+		padding, usernameY, usernameFontSize, template.HTMLEscapeString(userName)))
 
-	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)" text-anchor="middle">👤</text>`,
-		width/2, iconY+iconSize/2, iconSize))
+	lineY := usernameY + lineGap
+	builder.WriteString(fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="var(--border-color)" stroke-width="1"/>`,
+		padding, lineY, width-padding, lineY))
 
-	titleY := iconY + iconSize + 20
-	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" font-weight="700" fill="var(--text-color)" text-anchor="middle">@%s</text>`,
-		width/2, titleY, titleSize, template.HTMLEscapeString(userName)))
+	messageY := lineY + textGap + messageBaseline
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)">This profile hasn't been claimed yet.</text>`,
+		padding, messageY, messageFontSize))
 
-	messageY := titleY + 30
-	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)" text-anchor="middle">This profile hasn't been claimed yet</text>`,
-		width/2, messageY, messageSize))
+	subMessageY := messageY + textGap
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)">Visit github-comment.injun.dev/%s to claim this profile.</text>`,
+		padding, subMessageY, messageFontSize, template.HTMLEscapeString(userName)))
 
 	builder.WriteString("</svg>")
 	return builder.String()
