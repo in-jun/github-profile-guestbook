@@ -41,7 +41,7 @@ Write a message (max 200 characters) on any profile.
 
 **Frontend:** Vanilla HTML/CSS/JavaScript
 
-**Deployment:** Docker, injunweb
+**Deployment:** Docker, [injunweb](https://github.com/injunweb)
 
 ## License
 
