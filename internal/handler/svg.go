@@ -33,22 +33,21 @@ func (h *SVGHandler) GetSVG(c *gin.Context) {
 	}
 
 	rows, err := h.db.Query(`SELECT
-		c.id,
+		m.id,
 		a.github_login,
-		c.content,
-		c.is_owner_liked,
-		COUNT(DISTINCT l.id)  AS likes,
-		COUNT(DISTINCT d.id)  AS dislikes
-	FROM messages c
-	JOIN users a         ON a.id = c.author_id
-	JOIN users r         ON r.id = c.receiver_id
-	LEFT JOIN likes l    ON l.message_id = c.id
-	LEFT JOIN dislikes d ON d.message_id = c.id
-	WHERE r.github_login = $1
-	GROUP BY c.id, a.github_login, c.content, c.is_owner_liked
+		m.content,
+		m.is_owner_liked,
+		COUNT(CASE WHEN r.type = 1 THEN 1 END)   AS likes,
+		COUNT(CASE WHEN r.type = -1 THEN 1 END)  AS dislikes
+	FROM messages m
+	JOIN users a          ON a.id = m.author_id
+	JOIN users recv       ON recv.id = m.receiver_id
+	LEFT JOIN reactions r ON r.message_id = m.id
+	WHERE recv.github_login = $1
+	GROUP BY m.id, a.github_login, m.content, m.is_owner_liked
 	ORDER BY
-		c.is_owner_liked DESC,
-		(COUNT(DISTINCT l.id) - COUNT(DISTINCT d.id)) DESC`, username)
+		m.is_owner_liked DESC,
+		(COUNT(CASE WHEN r.type = 1 THEN 1 END) - COUNT(CASE WHEN r.type = -1 THEN 1 END)) DESC`, username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get messages"})
 		return

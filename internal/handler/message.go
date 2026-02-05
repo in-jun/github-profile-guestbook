@@ -90,26 +90,25 @@ func (h *MessageHandler) List(c *gin.Context) {
 	}
 
 	query := `SELECT
-		c.id,
+		m.id,
 		a.github_login AS author_login,
 		a.id           AS author_id,
-		c.content,
-		c.is_owner_liked,
-		COUNT(DISTINCT l.id)                        AS likes,
-		COUNT(DISTINCT d.id)                        AS dislikes,
-		COALESCE(BOOL_OR(l.user_id = $2), FALSE)    AS is_liked,
-		COALESCE(BOOL_OR(d.user_id = $2), FALSE)    AS is_disliked
-	FROM messages c
-	JOIN users a         ON a.id = c.author_id
-	JOIN users r         ON r.id = c.receiver_id
-	LEFT JOIN likes l    ON l.message_id = c.id
-	LEFT JOIN dislikes d ON d.message_id = c.id
-	WHERE r.github_login = $1
-	GROUP BY c.id, a.github_login, a.id, c.content, c.is_owner_liked
+		m.content,
+		m.is_owner_liked,
+		COUNT(CASE WHEN r.type = 1 THEN 1 END)                     AS likes,
+		COUNT(CASE WHEN r.type = -1 THEN 1 END)                    AS dislikes,
+		COALESCE(BOOL_OR(r.user_id = $2 AND r.type = 1), FALSE)    AS is_liked,
+		COALESCE(BOOL_OR(r.user_id = $2 AND r.type = -1), FALSE)   AS is_disliked
+	FROM messages m
+	JOIN users a          ON a.id = m.author_id
+	JOIN users recv       ON recv.id = m.receiver_id
+	LEFT JOIN reactions r ON r.message_id = m.id
+	WHERE recv.github_login = $1
+	GROUP BY m.id, a.github_login, a.id, m.content, m.is_owner_liked
 	ORDER BY
 		CASE WHEN a.id = $2 THEN 0 ELSE 1 END,
-		c.is_owner_liked DESC,
-		(COUNT(DISTINCT l.id) - COUNT(DISTINCT d.id)) DESC`
+		m.is_owner_liked DESC,
+		(COUNT(CASE WHEN r.type = 1 THEN 1 END) - COUNT(CASE WHEN r.type = -1 THEN 1 END)) DESC`
 
 	rows, err := h.db.Query(query, username, currentUserID)
 	if err != nil {

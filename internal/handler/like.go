@@ -61,23 +61,22 @@ func (h *LikeHandler) Like(c *gin.Context) {
 		return
 	}
 
-	var alreadyLiked, alreadyDisliked bool
-	h.db.QueryRow(`SELECT
-		EXISTS (SELECT 1 FROM likes    WHERE message_id = $1 AND user_id = $2) AS already_liked,
-		EXISTS (SELECT 1 FROM dislikes WHERE message_id = $1 AND user_id = $2) AS already_disliked`,
-		messageID, userID,
-	).Scan(&alreadyLiked, &alreadyDisliked)
-
-	if alreadyLiked {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "You have already liked this message"})
+	var existingType *int16
+	err = h.db.QueryRow("SELECT type FROM reactions WHERE message_id = $1 AND user_id = $2", messageID, userID).Scan(&existingType)
+	if err != nil && err != sql.ErrNoRows {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like message"})
 		return
 	}
-	if alreadyDisliked {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "You have already disliked this message"})
+	if existingType != nil {
+		if *existingType == 1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You have already liked this message"})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You have already disliked this message"})
+		}
 		return
 	}
 
-	if _, err := h.db.Exec("INSERT INTO likes (message_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
+	if _, err := h.db.Exec("INSERT INTO reactions (message_id, user_id, type) VALUES ($1, $2, 1)", messageID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to like message"})
 		return
 	}
@@ -102,7 +101,7 @@ func (h *LikeHandler) RemoveLike(c *gin.Context) {
 		return
 	}
 
-	result, err := h.db.Exec("DELETE FROM likes WHERE message_id = $1 AND user_id = $2", messageID, userID)
+	result, err := h.db.Exec("DELETE FROM reactions WHERE message_id = $1 AND user_id = $2 AND type = 1", messageID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove like"})
 		return
@@ -143,23 +142,22 @@ func (h *LikeHandler) Dislike(c *gin.Context) {
 		return
 	}
 
-	var alreadyLiked, alreadyDisliked bool
-	h.db.QueryRow(`SELECT
-		EXISTS (SELECT 1 FROM likes    WHERE message_id = $1 AND user_id = $2),
-		EXISTS (SELECT 1 FROM dislikes WHERE message_id = $1 AND user_id = $2)`,
-		messageID, userID,
-	).Scan(&alreadyLiked, &alreadyDisliked)
-
-	if alreadyDisliked {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "You have already disliked this message"})
+	var existingType *int16
+	err = h.db.QueryRow("SELECT type FROM reactions WHERE message_id = $1 AND user_id = $2", messageID, userID).Scan(&existingType)
+	if err != nil && err != sql.ErrNoRows {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to dislike message"})
 		return
 	}
-	if alreadyLiked {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "You have already liked this message"})
+	if existingType != nil {
+		if *existingType == -1 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You have already disliked this message"})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "You have already liked this message"})
+		}
 		return
 	}
 
-	if _, err := h.db.Exec("INSERT INTO dislikes (message_id, user_id) VALUES ($1, $2)", messageID, userID); err != nil {
+	if _, err := h.db.Exec("INSERT INTO reactions (message_id, user_id, type) VALUES ($1, $2, -1)", messageID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to dislike message"})
 		return
 	}
@@ -184,7 +182,7 @@ func (h *LikeHandler) RemoveDislike(c *gin.Context) {
 		return
 	}
 
-	result, err := h.db.Exec("DELETE FROM dislikes WHERE message_id = $1 AND user_id = $2", messageID, userID)
+	result, err := h.db.Exec("DELETE FROM reactions WHERE message_id = $1 AND user_id = $2 AND type = -1", messageID, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove dislike"})
 		return
