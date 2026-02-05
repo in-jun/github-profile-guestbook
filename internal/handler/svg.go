@@ -232,7 +232,7 @@ func generateLoginPromptSVG(userName string) string {
 		padding, messageY, messageFontSize))
 
 	subMessageY := messageY + textGap
-	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)">Visit github-comment.injun.dev/%s to claim this profile.</text>`,
+	builder.WriteString(fmt.Sprintf(`<text x="%d" y="%d" font-size="%d" fill="var(--gray-color)">Visit github-profile-guestbook.injun.dev/%s to claim this profile.</text>`,
 		padding, subMessageY, messageFontSize, template.HTMLEscapeString(userName)))
 
 	builder.WriteString("</svg>")
